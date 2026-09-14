@@ -1,0 +1,24 @@
+diff --git a/Assets/Scripts/Script/ContinuousController.cs b/Assets/Scripts/Script/ContinuousController.cs
+index 6e921c7d7..c49529190 100644
+--- a/Assets/Scripts/Script/ContinuousController.cs
++++ b/Assets/Scripts/Script/ContinuousController.cs
+@@ -685,8 +685,8 @@ public class ContinuousController : MonoBehaviour
+ 
+ 
+             string deckName = sr.ReadLine().Replace("Name: ", "");
+-            int KeyCard = int.Parse(sr.ReadLine().Replace("Key Card: ", ""));
+-            int SortValue = int.Parse(sr.ReadLine().Replace("Sort Index: ", ""));
++            string rawKey = sr.ReadLine(); int KeyCard = 0; if (!string.IsNullOrEmpty(rawKey)) { int.TryParse(rawKey.Replace("Key Card: ", "").Trim(), out KeyCard); }
++            string rawSort = sr.ReadLine(); int SortValue = 0; if (!string.IsNullOrEmpty(rawSort)) { int.TryParse(rawSort.Replace("Sort Index: ", "").Trim(), out SortValue); }
+ 
+             sr.Close();
+ 
+@@ -696,7 +696,7 @@ public class ContinuousController : MonoBehaviour
+             if(SortValue < 0)
+                 SortValue = 0;
+ 
+-            CreateDeckFromFile(fileName.Split("_")[1], deckName, KeyCard, deck, SortValue);
++            CreateDeckFromFile((fileName.Contains("_") ? fileName.Split("_")[1] : fileName), deckName, KeyCard, deck, SortValue);
+         }
+ 
+         DeckDatas = DeckDatas.OrderBy(x => x.DeckName).ToList();

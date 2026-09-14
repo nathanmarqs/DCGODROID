@@ -1,0 +1,15 @@
+# Build artifacts and binaries
+*.apk
+*.aab
+*.log
+*.tmp
+logs/
+workspaces/
+output/*.apk
+output/*.aab
+!output/.gitkeep
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
