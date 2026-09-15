@@ -6,18 +6,18 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host " [Engine-Patch] Iniciando aplicação de patches" -ForegroundColor Cyan
-Write-Host " Projeto Alvo: $ProjectPath" -ForegroundColor Cyan
+Write-Host " [Engine-Patch] Starting Patch Deployment" -ForegroundColor Cyan
+Write-Host " Target Project: $ProjectPath" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 if (!(Test-Path -LiteralPath $ProjectPath)) {
-    throw "Diretório do projeto não encontrado: $ProjectPath"
+    throw "Project directory not found: $ProjectPath"
 }
 
 $patchesDir = Join-Path $PSScriptRoot "patches"
 
-# 1. Injetar Shaders Corrigidos (Mali GPU Bugfix)
-Write-Host "[1/5] Injetando Shaders Mobile e Partículas URP..." -ForegroundColor Yellow
+# 1. Inject Fixed Shaders (Mali GPU Bugfix)
+Write-Host "[1/5] Injecting Mobile & URP Particle Shaders..." -ForegroundColor Yellow
 $targetShaderDir = Join-Path $ProjectPath "Assets\Shader_Material\Shader"
 if (!(Test-Path -LiteralPath $targetShaderDir)) {
     New-Item -ItemType Directory -Path $targetShaderDir -Force | Out-Null
@@ -35,7 +35,7 @@ foreach ($sh in $shaders) {
     $src = Join-Path $patchesDir "Shaders\$sh"
     if (Test-Path -LiteralPath $src) {
         Copy-Item -LiteralPath $src -Destination (Join-Path $targetShaderDir $sh) -Force
-        Write-Host "  -> Injetado: $sh" -ForegroundColor Green
+        Write-Host "  -> Injected: $sh" -ForegroundColor Green
     }
 }
 
@@ -46,21 +46,21 @@ if (Test-Path -LiteralPath $envShaderSrc) {
         New-Item -ItemType Directory -Path $envShaderDest -Force | Out-Null
     }
     Copy-Item -LiteralPath $envShaderSrc -Destination (Join-Path $envShaderDest "MobileMaskedAdditive.shader") -Force
-    Write-Host "  -> Injetado: MobileMaskedAdditive.shader" -ForegroundColor Green
+    Write-Host "  -> Injected: MobileMaskedAdditive.shader" -ForegroundColor Green
 }
 
-# 2. Injetar Script de Build Automatizado (ProductionBuild.cs)
-Write-Host "[2/5] Injetando Script de Compilação Release..." -ForegroundColor Yellow
+# 2. Inject Automated Build Script (ProductionBuild.cs)
+Write-Host "[2/5] Injecting Release Build Script..." -ForegroundColor Yellow
 $editorDir = Join-Path $ProjectPath "Assets\Editor"
 if (!(Test-Path -LiteralPath $editorDir)) {
     New-Item -ItemType Directory -Path $editorDir -Force | Out-Null
 }
 $buildScriptSrc = Join-Path $patchesDir "Editor\ProductionBuild.cs"
 Copy-Item -LiteralPath $buildScriptSrc -Destination (Join-Path $editorDir "ProductionBuild.cs") -Force
-Write-Host "  -> Injetado: Assets\Editor\ProductionBuild.cs" -ForegroundColor Green
+Write-Host "  -> Injected: Assets\Editor\ProductionBuild.cs" -ForegroundColor Green
 
 # 3. Patch ProjectSettings.asset (Dual Landscape + Android settings)
-Write-Host "[3/5] Configurando ProjectSettings (Autorrotação Paisagem Dupla)..." -ForegroundColor Yellow
+Write-Host "[3/5] Configuring ProjectSettings (Dual-Landscape AutoRotation)..." -ForegroundColor Yellow
 $projectSettingsPath = Join-Path $ProjectPath "ProjectSettings\ProjectSettings.asset"
 if (Test-Path -LiteralPath $projectSettingsPath) {
     $content = [System.IO.File]::ReadAllText($projectSettingsPath)
@@ -72,23 +72,23 @@ if (Test-Path -LiteralPath $projectSettingsPath) {
     $content = $content -replace "defaultInterfaceOrientation:\s*\d+", "defaultInterfaceOrientation: 3"
     
     [System.IO.File]::WriteAllText($projectSettingsPath, $content)
-    Write-Host "  -> ProjectSettings.asset configurado para LandscapeLeft + LandscapeRight" -ForegroundColor Green
+    Write-Host "  -> ProjectSettings.asset configured for LandscapeLeft + LandscapeRight" -ForegroundColor Green
 } else {
-    Write-Host "  [Aviso] ProjectSettings.asset não encontrado em $projectSettingsPath" -ForegroundColor DarkYellow
+    Write-Host "  [Warning] ProjectSettings.asset not found at $projectSettingsPath" -ForegroundColor DarkYellow
 }
 
 # 4. Patch C# Scripts (StreamingAssetsUtility + ContinuousController)
-Write-Host "[4/5] Aplicando correções defensivas de código C#..." -ForegroundColor Yellow
+Write-Host "[4/5] Applying defensive C# code patches..." -ForegroundColor Yellow
 $sauPath = Join-Path $ProjectPath "Assets\Scripts\Script\StreamingAssetsUtility.cs"
 if (Test-Path -LiteralPath $sauPath) {
     $sauContent = [System.IO.File]::ReadAllText($sauPath)
     if ($sauContent -notmatch "Application\.persistentDataPath") {
-        # Garantir redirecionamento de Decks no Android
+        # Redirect Decks to persistentDataPath on Android
         $sauContent = $sauContent -replace 'public static string GetDecksPath\(\)\s*\{', "public static string GetDecksPath()`n    {`n#if UNITY_ANDROID && !UNITY_EDITOR`n        string path = Path.Combine(Application.persistentDataPath, `"Decks`").Replace(`"\\`", `"/`");`n        if (!Directory.Exists(path)) Directory.CreateDirectory(path);`n        return path;`n#endif"
         [System.IO.File]::WriteAllText($sauPath, $sauContent)
-        Write-Host "  -> StreamingAssetsUtility.cs corrigido para persistentDataPath" -ForegroundColor Green
+        Write-Host "  -> StreamingAssetsUtility.cs patched for persistentDataPath" -ForegroundColor Green
     } else {
-        Write-Host "  -> StreamingAssetsUtility.cs já compatível" -ForegroundColor DarkGray
+        Write-Host "  -> StreamingAssetsUtility.cs already compatible" -ForegroundColor DarkGray
     }
 }
 
@@ -101,12 +101,12 @@ if (Test-Path -LiteralPath $ccPath) {
         $ccContent = $ccContent -replace 'int SortValue = int\.Parse\(sr\.ReadLine\(\)\.Replace\("Sort Index: ", ""\)\);', 'string rawSort = sr.ReadLine(); int SortValue = 0; if (!string.IsNullOrEmpty(rawSort)) { int.TryParse(rawSort.Replace("Sort Index: ", "").Trim(), out SortValue); }'
         $ccContent = $ccContent -replace 'fileName\.Split\("_"\)\[1\]', '(fileName.Contains("_") ? fileName.Split("_")[1] : fileName)'
         [System.IO.File]::WriteAllText($ccPath, $ccContent)
-        Write-Host "  -> ContinuousController.cs protegido contra falhas de parsing de Decks" -ForegroundColor Green
+        Write-Host "  -> ContinuousController.cs protected against deck parsing exceptions" -ForegroundColor Green
     } else {
-        Write-Host "  -> ContinuousController.cs já protegido" -ForegroundColor DarkGray
+        Write-Host "  -> ContinuousController.cs already protected" -ForegroundColor DarkGray
     }
 }
 
 Write-Host "==========================================" -ForegroundColor Green
-Write-Host " [Engine-Patch] Todos os patches aplicados com sucesso!" -ForegroundColor Green
+Write-Host " [Engine-Patch] All patches applied successfully!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
