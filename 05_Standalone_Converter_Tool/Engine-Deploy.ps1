@@ -1,9 +1,16 @@
 param(
-    [string]$ApkPath = (Join-Path $PSScriptRoot "output\DCGO-android-latest.apk"),
+    [string]$ApkPath = "",
     [switch]$LaunchAfterInstall = $true
 )
 
 $ErrorActionPreference = 'Stop'
+$ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+if (-not $ScriptDir) { $ScriptDir = (Get-Location).Path }
+
+if ([string]::IsNullOrWhiteSpace($ApkPath)) {
+    $ApkPath = Join-Path $ScriptDir "output\DCGO-android-latest.apk"
+}
+
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host " [Engine-Deploy] ADB Deployment & Synchronization" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
@@ -57,7 +64,7 @@ if ($installOutput -notmatch "Success") {
 
 # 5. Inject Starter Deck & Set Permissions
 Write-Host "`n[2/3] Synchronizing Starter Decks..." -ForegroundColor Yellow
-$starterDeck = Join-Path $PSScriptRoot "patches\Decks\StarterDeck.txt"
+$starterDeck = Join-Path $ScriptDir "patches\Decks\StarterDeck.txt"
 if (Test-Path -LiteralPath $starterDeck) {
     & $adb shell "mkdir -p /sdcard/Android/data/com.DCGO.DCGO/files/Decks" | Out-Null
     & $adb push $starterDeck "/sdcard/Android/data/com.DCGO.DCGO/files/Decks/StarterDeck_01.txt" | Out-Null

@@ -1,29 +1,47 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$ProjectPath,
-    [string]$UnityPath = "C:\Program Files\Unity\Hub\Editor\2021.3.45f2\Editor\Unity.exe",
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot "output")
+    [string]$UnityPath = "",
+    [string]$OutputDirectory = ""
 )
 
 $ErrorActionPreference = 'Stop'
+$ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+if (-not $ScriptDir) { $ScriptDir = (Get-Location).Path }
+
+if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
+    $OutputDirectory = Join-Path $ScriptDir "output"
+}
+
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host " [Engine-Build] Starting Android Build" -ForegroundColor Cyan
 Write-Host " Project: $ProjectPath" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
-# 1. Locate Unity Editor if default path does not exist
-if (!(Test-Path -LiteralPath $UnityPath)) {
-    $found = Get-ChildItem "C:\Program Files\Unity\Hub\Editor\*\Editor\Unity.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+# 1. Locate Unity Editor if path is not specified or does not exist
+if ([string]::IsNullOrWhiteSpace($UnityPath) -or !(Test-Path -LiteralPath $UnityPath)) {
+    $unityCandidates = @(
+        "C:\Program Files\Unity\Hub\Editor\2021.3.45f2\Editor\Unity.exe",
+        "C:\Program Files\Unity\Hub\Editor\*\Editor\Unity.exe",
+        "D:\Program Files\Unity\Hub\Editor\*\Editor\Unity.exe",
+        "C:\Program Files\Unity\Editor\Unity.exe"
+    )
+    $found = $null
+    foreach ($cand in $unityCandidates) {
+        $matched = Get-Item $cand -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($matched) { $found = $matched.FullName; break }
+    }
+
     if ($found) {
-        $UnityPath = $found.FullName
-        Write-Host "  -> Unity dynamically detected: $UnityPath" -ForegroundColor Green
+        $UnityPath = $found
+        Write-Host "  -> Unity detected dynamically: $UnityPath" -ForegroundColor Green
     } else {
-        throw "Unity.exe not found at: $UnityPath"
+        throw "Unity.exe not found on system. Please verify Unity Editor (2021.3.x) is installed."
     }
 }
 
 # 2. Configure log and output directory
-$logDir = Join-Path $PSScriptRoot "logs"
+$logDir = Join-Path $ScriptDir "logs"
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 

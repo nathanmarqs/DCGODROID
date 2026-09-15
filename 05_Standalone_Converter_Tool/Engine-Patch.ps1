@@ -14,7 +14,10 @@ if (!(Test-Path -LiteralPath $ProjectPath)) {
     throw "Project directory not found: $ProjectPath"
 }
 
-$patchesDir = Join-Path $PSScriptRoot "patches"
+$ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+if (-not $ScriptDir) { $ScriptDir = (Get-Location).Path }
+
+$patchesDir = Join-Path $ScriptDir "patches"
 
 # 1. Inject Fixed Shaders (Mali GPU Bugfix)
 Write-Host "[1/5] Injecting Mobile & URP Particle Shaders..." -ForegroundColor Yellow

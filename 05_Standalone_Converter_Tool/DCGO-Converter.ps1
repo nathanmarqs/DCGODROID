@@ -127,18 +127,55 @@ function Invoke-GitConversion {
         New-Item -ItemType Directory -Path (Split-Path $workspaceDir) -Force | Out-Null
     }
 
-    $cloneArgs = @("clone", "--depth", "1")
-    if ($Branch) {
-        $cloneArgs += @("--branch", $Branch)
-        Write-Host "`n[Step 1/4] Cloning $RepoUrl (branch: $Branch) into $workspaceDir..." -ForegroundColor Cyan
-    } else {
-        Write-Host "`n[Step 1/4] Cloning $RepoUrl (default branch) into $workspaceDir..." -ForegroundColor Cyan
-    }
-    $cloneArgs += @($RepoUrl, $workspaceDir)
+    $gitAvailable = (Get-Command git -ErrorAction SilentlyContinue) -ne $null
+    $success = $false
 
-    & git @cloneArgs
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "`n[ERROR] Failed to clone git repository. Exit code: $LASTEXITCODE" -ForegroundColor Red
+    if ($gitAvailable) {
+        $cloneArgs = @("clone", "--depth", "1")
+        if ($Branch) {
+            $cloneArgs += @("--branch", $Branch)
+            Write-Host "`n[Step 1/4] Cloning $RepoUrl (branch: $Branch) into $workspaceDir..." -ForegroundColor Cyan
+        } else {
+            Write-Host "`n[Step 1/4] Cloning $RepoUrl (default branch) into $workspaceDir..." -ForegroundColor Cyan
+        }
+        $cloneArgs += @($RepoUrl, $workspaceDir)
+
+        & git @cloneArgs
+        if ($LASTEXITCODE -eq 0 -and (Test-Path (Join-Path $workspaceDir "Assets"))) {
+            $success = $true
+        }
+    }
+
+    # Zero-dependency Fallback: Download direct ZIP via HTTP if git is not installed or clone fails
+    if (-not $success) {
+        Write-Host "`n[Notice] Git not detected or clone failed. Using direct HTTP zero-dependency download..." -ForegroundColor Yellow
+        $zipBranch = if ($Branch) { $Branch } else { "main" }
+        $cleanRepo = $RepoUrl -replace "\.git$", ""
+        $zipUrl = "$cleanRepo/archive/refs/heads/$zipBranch.zip"
+        $tempZip = Join-Path $ScriptDir "workspaces\temp_$timestamp.zip"
+        $tempExtract = Join-Path $ScriptDir "workspaces\extract_$timestamp"
+
+        Write-Host "Downloading $zipUrl..." -ForegroundColor Cyan
+        try {
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            Invoke-WebRequest -Uri $zipUrl -OutFile $tempZip -UseBasicParsing
+            Write-Host "Extracting repository files..." -ForegroundColor Cyan
+            Expand-Archive -Path $tempZip -DestinationPath $tempExtract -Force
+            Remove-Item $tempZip -Force -ErrorAction SilentlyContinue
+
+            $inner = Get-ChildItem -Path $tempExtract -Directory | Select-Object -First 1
+            if ($inner) {
+                Move-Item -Path $inner.FullName -Destination $workspaceDir -Force
+                Remove-Item $tempExtract -Recurse -Force -ErrorAction SilentlyContinue
+                $success = (Test-Path (Join-Path $workspaceDir "Assets"))
+            }
+        } catch {
+            Write-Host "[ERROR] Direct HTTP download failed: $_" -ForegroundColor Red
+        }
+    }
+
+    if (-not $success) {
+        Write-Host "`n[ERROR] Failed to acquire DCGO source code from GitHub." -ForegroundColor Red
         return
     }
 
@@ -179,7 +216,8 @@ function Invoke-PatchAndBuild {
     # Step 2: Build
     Write-Host "`n[Step 3/4] Launching Headless Unity Batchmode Build..." -ForegroundColor Cyan
     $buildScript = Join-Path $ScriptDir "Engine-Build.ps1"
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $buildScript -ProjectPath $ProjectDir
+    $outputDir = Join-Path $ScriptDir "output"
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $buildScript -ProjectPath $ProjectDir -OutputDirectory $outputDir
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[ERROR] Unity APK build failed." -ForegroundColor Red
         return
