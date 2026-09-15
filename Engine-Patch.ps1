@@ -110,6 +110,31 @@ if (Test-Path -LiteralPath $ccPath) {
     }
 }
 
+# 6. Patch FieldPermanentCard & HandCard (Fix upstream Android compile errors: pressing -> _pressing, requiredTime -> _requiredTime)
+Write-Host "[5/5] Fixing upstream Android syntax bugs (FieldPermanentCard & HandCard)..." -ForegroundColor Yellow
+
+$fpcPath = Join-Path $ProjectPath "Assets\Scripts\Script\FieldPermanentCard.cs"
+if (Test-Path -LiteralPath $fpcPath) {
+    $fpcContent = [System.IO.File]::ReadAllText($fpcPath)
+    $fpcContent = $fpcContent -replace '__pressing', '_pressing'
+    $fpcContent = $fpcContent -replace '__requiredTime', '_requiredTime'
+    $fpcContent = $fpcContent -replace '\bpressing\b', '_pressing'
+    $fpcContent = $fpcContent -replace '\brequiredTime\b', '_requiredTime'
+    [System.IO.File]::WriteAllText($fpcPath, $fpcContent)
+    Write-Host "  -> FieldPermanentCard.cs Android syntax normalized!" -ForegroundColor Green
+}
+
+$hcPath = Join-Path $ProjectPath "Assets\Scripts\Script\HandCard.cs"
+if (Test-Path -LiteralPath $hcPath) {
+    $hcContent = [System.IO.File]::ReadAllText($hcPath)
+    $hcContent = $hcContent -replace '__pressing', '_pressing'
+    $hcContent = $hcContent -replace '__requiredTime', '_requiredTime'
+    $hcContent = $hcContent -replace '\bpressing\b', '_pressing'
+    $hcContent = $hcContent -replace '\brequiredTime\b', '_requiredTime'
+    [System.IO.File]::WriteAllText($hcPath, $hcContent)
+    Write-Host "  -> HandCard.cs Android syntax normalized!" -ForegroundColor Green
+}
+
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host " [Engine-Patch] All patches applied successfully!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
