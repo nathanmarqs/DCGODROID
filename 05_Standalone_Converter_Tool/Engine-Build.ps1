@@ -90,25 +90,43 @@ while (!$process.HasExited) {
                     $currentPct = [Math]::Min(35, 10 + [int]($importedCount / 400))
                 }
 
+                # Catch internal Unity progress bar status
+                $progMatches = [regex]::Matches($chunk, "DisplayProgressbar:\s*([^\r\n]+)")
+                if ($progMatches.Count -gt 0) {
+                    $rawText = $progMatches[$progMatches.Count - 1].Groups[1].Value.Trim()
+                    if ($rawText.Length -gt 38) { $rawText = $rawText.Substring(0, 35) + "..." }
+                    $currentPhaseText = $rawText
+                }
+
                 if ($chunk -match "ReloadAssembly" -or $chunk -match "Domain Reload") {
                     $currentPhaseText = "Compiling Assemblies & Reloading Domain"
-                    $currentPct = 40
+                    $currentPct = [Math]::Max($currentPct, 38)
                 }
-                if ($chunk -match "Scripts has have been compiled" -or $chunk -match "Compilation succeeded") {
-                    $currentPhaseText = "C# Scripts Compiled Successfully"
-                    $currentPct = 50
+                if ($chunk -match "ScriptAssemblies" -or $chunk -match "bee_backend") {
+                    $currentPhaseText = "Compiling Player C# Scripts"
+                    $currentPct = [Math]::Max($currentPct, 45)
                 }
-                if ($chunk -match "Compiling shader" -or $chunk -match "Shader compilation") {
+                if ($chunk -match "Opening scene '([^']+)'") {
+                    $sceneName = [regex]::Match($chunk, "Opening scene '([^']+)").Groups[1].Value
+                    $sceneShort = [System.IO.Path]::GetFileNameWithoutExtension($sceneName)
+                    $currentPhaseText = "Building Scene: $sceneShort"
+                    $currentPct = [Math]::Max($currentPct, 55)
+                }
+                if ($chunk -match "Compiling shader" -or $chunk -match "Shader compilation" -or $chunk -match "UnityShaderCompiler") {
                     $currentPhaseText = "Compiling Shaders & Graphics Variants"
-                    $currentPct = 65
+                    $currentPct = [Math]::Max($currentPct, 65)
                 }
-                if ($chunk -match "Building IL2CPP" -or $chunk -match "il2cpp\.exe") {
+                if ($chunk -match "Building IL2CPP" -or $chunk -match "il2cpp\.exe" -or $chunk -match "il2cpp") {
                     $currentPhaseText = "Running IL2CPP (C# -> ARM64 Native)"
-                    $currentPct = 80
+                    $currentPct = [Math]::Max($currentPct, 78)
                 }
-                if ($chunk -match "Building APK" -or $chunk -match "Gradle" -or $chunk -match "apkbuilder") {
+                if ($chunk -match "Building APK" -or $chunk -match "Gradle" -or $chunk -match "apkbuilder" -or $chunk -match "build\.gradle") {
                     $currentPhaseText = "Packaging Release APK via Gradle"
-                    $currentPct = 90
+                    $currentPct = [Math]::Max($currentPct, 88)
+                }
+                if ($chunk -match "Build completed with a result of 'Succeeded'") {
+                    $currentPhaseText = "Build Completed Successfully"
+                    $currentPct = 100
                 }
             }
             $stream.Close()
