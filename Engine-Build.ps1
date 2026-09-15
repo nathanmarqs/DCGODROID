@@ -58,12 +58,20 @@ $startTime = Get-Date
 Write-Host "`n[1/3] Launching Unity Editor process..." -ForegroundColor Yellow
 $process = Start-Process -FilePath $UnityPath -ArgumentList $arguments -WindowStyle Hidden -PassThru
 
-# Monitor log in real time
+# Monitor log in real time with visual animated progress bar
 $lastReadPos = 0
 $phasesSeen = @{}
+$spinner = @('|', '/', '-', '\')
+$spinnerIdx = 0
+$currentPhaseText = "Initializing Unity Editor..."
+$currentPct = 10
+$importedCount = 0
 
 while (!$process.HasExited) {
-    Start-Sleep -Seconds 3
+    Start-Sleep -Milliseconds 600
+    $spinnerChar = $spinner[$spinnerIdx % $spinner.Length]
+    $spinnerIdx++
+
     if (Test-Path -LiteralPath $logFile) {
         try {
             $stream = [System.IO.File]::Open($logFile, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
@@ -74,28 +82,52 @@ while (!$process.HasExited) {
                 $lastReadPos = $stream.Length
                 $reader.Close()
                 
-                # Identify main build phases
-                if ($chunk -match "Scripts has have been compiled" -and !$phasesSeen.ContainsKey("Scripts")) {
-                    $phasesSeen["Scripts"] = $true
-                    Write-Host "  [*] C# scripts compiled successfully." -ForegroundColor Green
+                # Count imported assets
+                $matches = [regex]::Matches($chunk, "Start importing")
+                if ($matches.Count -gt 0) {
+                    $importedCount += $matches.Count
+                    $currentPhaseText = "Importing Assets ($importedCount items)"
+                    $currentPct = [Math]::Min(35, 10 + [int]($importedCount / 400))
                 }
-                if ($chunk -match "Compiling shader" -and !$phasesSeen.ContainsKey("Shaders")) {
-                    $phasesSeen["Shaders"] = $true
-                    Write-Host "  [*] Compiling shaders and graphics variants..." -ForegroundColor Cyan
+
+                if ($chunk -match "ReloadAssembly" -or $chunk -match "Domain Reload") {
+                    $currentPhaseText = "Compiling Assemblies & Reloading Domain"
+                    $currentPct = 40
                 }
-                if ($chunk -match "Building IL2CPP" -and !$phasesSeen.ContainsKey("IL2CPP")) {
-                    $phasesSeen["IL2CPP"] = $true
-                    Write-Host "  [*] Running IL2CPP converter for ARM64..." -ForegroundColor Cyan
+                if ($chunk -match "Scripts has have been compiled" -or $chunk -match "Compilation succeeded") {
+                    $currentPhaseText = "C# Scripts Compiled Successfully"
+                    $currentPct = 50
                 }
-                if ($chunk -match "Building APK" -and !$phasesSeen.ContainsKey("APK")) {
-                    $phasesSeen["APK"] = $true
-                    Write-Host "  [*] Packaging final APK via Gradle..." -ForegroundColor Cyan
+                if ($chunk -match "Compiling shader" -or $chunk -match "Shader compilation") {
+                    $currentPhaseText = "Compiling Shaders & Graphics Variants"
+                    $currentPct = 65
+                }
+                if ($chunk -match "Building IL2CPP" -or $chunk -match "il2cpp\.exe") {
+                    $currentPhaseText = "Running IL2CPP (C# -> ARM64 Native)"
+                    $currentPct = 80
+                }
+                if ($chunk -match "Building APK" -or $chunk -match "Gradle" -or $chunk -match "apkbuilder") {
+                    $currentPhaseText = "Packaging Release APK via Gradle"
+                    $currentPct = 90
                 }
             }
             $stream.Close()
         } catch { }
     }
+
+    $elapsed = (Get-Date) - $startTime
+    $elapsedStr = "{0:D2}m {1:D2}s" -f [int]$elapsed.TotalMinutes, $elapsed.Seconds
+
+    # Visual ASCII Progress Bar [================--------]
+    $barTotal = 20
+    $barFilled = [int](($currentPct / 100) * $barTotal)
+    $barEmpty = [Math]::Max(0, $barTotal - $barFilled)
+    $barStr = ("=" * $barFilled) + ("-" * $barEmpty)
+
+    $statusLine = "`r  [$spinnerChar] [$barStr] {0,3}% | {1,-40} | Elapsed: {2} " -f $currentPct, $currentPhaseText, $elapsedStr
+    Write-Host -NoNewline $statusLine
 }
+Write-Host ""
 
 $duration = [Math]::Round(((Get-Date) - $startTime).TotalMinutes, 1)
 Write-Host "`n[2/3] Unity process completed in $duration minutes with exit code: $($process.ExitCode)" -ForegroundColor $(if ($process.ExitCode -eq 0) { "Green" } else { "Red" })

@@ -25,6 +25,32 @@ param(
 $Host.UI.RawUI.WindowTitle = "DCGO Android Converter & Builder"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+# Prevent console freeze when user accidentally clicks with mouse inside terminal window
+try {
+    Add-Type -TypeDefinition @"
+    using System;
+    using System.Runtime.InteropServices;
+    public static class ConsoleHelper {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr GetStdHandle(int nStdHandle);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+        public static void DisableQuickEdit() {
+            IntPtr h = GetStdHandle(-10);
+            uint mode;
+            if (GetConsoleMode(h, out mode)) {
+                mode &= ~0x0040u;
+                mode |= 0x0080u;
+                SetConsoleMode(h, mode);
+            }
+        }
+    }
+"@ -ErrorAction SilentlyContinue
+    [ConsoleHelper]::DisableQuickEdit()
+} catch {}
+
 function Write-Header {
     Clear-Host
     Write-Host "============================================================" -ForegroundColor Cyan
