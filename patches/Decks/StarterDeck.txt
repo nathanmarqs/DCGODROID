@@ -1,0 +1,26 @@
+Name: UserDeck
+Key Card: 0
+Sort Index: 0
+
+// DeckList
+
+2 Asuna Shiroki BT24-088
+4 Blimpmon BT24-058
+4 Coronamon BT25-008
+2 Crimson Blaze BT8-097
+4 Dan Yuki & Kanan Yuki BT24-085
+4 Divine Arms Version Ω BT25-101
+3 Factorial Area BT25-102
+1 Gravity Crush BT1-090
+1 Ignition Flare BT25-093
+4 In-Between Theater BT24-100
+2 Iron Slash BT25-100
+2 Kokuwamon BT25-062
+2 Marsmon BT25-020
+2 Meramon BT25-014
+1 Monica Simmons BT25-091
+1 Soul Fear BT24-097
+3 Tidal Stream BT24-091
+4 Tokomon BT25-001
+4 ToyAgumon BT25-064
+4 Vulcanusmon BT25-075
