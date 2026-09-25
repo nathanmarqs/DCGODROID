@@ -1,5 +1,5 @@
-<div align="center">
-  <h1>🎮 DCGO Android Converter & Builder</h1>
+﻿<div align="center">
+  <h1>ðŸŽ® DCGO Android Converter & Builder</h1>
   <p><i>The ultimate, fully-automated toolkit to bring Digimon Card Game Online to your mobile device.</i></p>
 
   ![Unity](https://img.shields.io/badge/Unity-2021.3.x-black?style=for-the-badge&logo=unity)
@@ -9,18 +9,18 @@
 
 ---
 
-> *Note: Para ler as instruções em Português, veja [`README_PT.md`](./README_PT.md).*
+> *Note: Para ler as instruÃ§Ãµes em PortuguÃªs, veja [`README_PT.md`](./README_PT.md).*
 
 Welcome to the **DCGO Android Converter**. This self-contained suite automatically patches, compiles, and deploys any version of **DCGO (Digimon Card Game Online)** directly to your Android device. No manual coding or shader fixing required.
 
-## ✨ Key Features
-- **🤖 Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
-- **📱 Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
-- **⚡ Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected Android device.
+## âœ¨ Key Features
+- **ðŸ¤– Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
+- **ðŸ“± Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
+- **âš¡ Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected Android device.
 
 ---
 
-## 🚀 Quick Start (1-Click)
+## ðŸš€ Quick Start (1-Click)
 
 1. Double-click the **`Converter-DCGO.bat`** shortcut in the project root.
 2. An interactive terminal will guide you through the process:
@@ -41,7 +41,7 @@ Welcome to the **DCGO Android Converter**. This self-contained suite automatical
 
 ---
 
-## 🛠️ Usage Guide
+## ðŸ› ï¸ Usage Guide
 
 | Option | Description | Ideal For |
 | :--- | :--- | :--- |
@@ -52,7 +52,7 @@ Welcome to the **DCGO Android Converter**. This self-contained suite automatical
 
 ---
 
-## 🧩 Under the Hood (Automated Patches)
+## ðŸ§© Under the Hood (Automated Patches)
 
 The converter acts as a bridge between the PC-centric original codebase and the mobile ecosystem. Here is what it does automatically behind the scenes:
 
@@ -63,23 +63,23 @@ The converter acts as a bridge between the PC-centric original codebase and the 
 
 ---
 
-## 📁 Directory Structure
+## ðŸ“ Directory Structure
 
 ```text
 DCGO-Converter/
-├── Converter-DCGO.bat          # 1-Click interactive launcher
-├── DCGO-Converter.ps1          # Core PowerShell orchestrator
-├── Engine-Patch.ps1            # Code injection and shader patcher
-├── Engine-Build.ps1            # Headless Unity IL2CPP compiler
-├── Engine-Deploy.ps1           # ADB installation & storage sync
-├── patches/                    # Repository of Android-ready assets (Shaders, Scripts, Decks)
-├── output/                     # Compiled APKs ready for distribution
-└── logs/                       # Build logs for debugging
+â”œâ”€â”€ Converter-DCGO.bat          # 1-Click interactive launcher
+â”œâ”€â”€ DCGO-Converter.ps1          # Core PowerShell orchestrator
+â”œâ”€â”€ Engine-Patch.ps1            # Code injection and shader patcher
+â”œâ”€â”€ Engine-Build.ps1            # Headless Unity IL2CPP compiler
+â”œâ”€â”€ Engine-Deploy.ps1           # ADB installation & storage sync
+â”œâ”€â”€ patches/                    # Repository of Android-ready assets (Shaders, Scripts, Decks)
+â”œâ”€â”€ output/                     # Compiled APKs ready for distribution
+â””â”€â”€ logs/                       # Build logs for debugging
 ```
 
 ---
 
-## 🃏 Importing Custom Decks
+## ðŸƒ Importing Custom Decks
 
 Decks are fully supported and synced directly to your Android device.
 
@@ -96,5 +96,6 @@ Decks are fully supported and synced directly to your Android device.
 
 ---
 <div align="center">
-  <i>Built for the DCGO Community • Seamless Mobile Card Battles</i>
+  <i>Built for the DCGO Community â€¢ Seamless Mobile Card Battles</i>
 </div>
+
