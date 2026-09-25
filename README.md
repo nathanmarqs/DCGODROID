@@ -1,15 +1,29 @@
-﻿# 🎮 DCGO Android Converter & Builder
+﻿<div align="center">
+  <h1>🎮 DCGO Android Converter & Builder</h1>
+  <p><i>The ultimate, fully-automated toolkit to bring Digimon Card Game Online to your mobile device.</i></p>
 
-An automated, self-contained suite to convert any version (current or future) of **DCGO (Digimon Card Game Online)** into a **100% functional, bug-free Android APK**, automatically patching graphics compatibility issues (Mali GPU shaders), screen orientation, and deck storage.
-
-> *Note: For instructions in Portuguese, see [\README_PT.md\](./README_PT.md).*
+  ![Unity](https://img.shields.io/badge/Unity-2021.3.x-black?style=for-the-badge&logo=unity)
+  ![Android](https://img.shields.io/badge/Android-Ready-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+  ![PowerShell](https://img.shields.io/badge/PowerShell-Automated-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
+</div>
 
 ---
 
-## ⚡ Quick Start (1-Click)
+> *Note: Para ler as instruções em Português, veja [\README_PT.md\](./README_PT.md).*
 
-1. Double-click **\Converter-DCGO.bat\** (or the shortcut **\CONVERTER-DCGO.bat\** in the root project folder).
-2. The interactive menu will open in your terminal:
+Welcome to the **DCGO Android Converter**. This self-contained suite automatically patches, compiles, and deploys any version of **DCGO (Digimon Card Game Online)** directly to your Android device. No manual coding or shader fixing required.
+
+## ✨ Key Features
+- **🤖 Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
+- **📱 Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
+- **⚡ Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected tablet or phone.
+
+---
+
+## 🚀 Quick Start (1-Click)
+
+1. Double-click the **\Converter-DCGO.bat\** shortcut in the project root.
+2. An interactive terminal will guide you through the process:
 
 \\\	ext
 ============================================================
@@ -27,43 +41,25 @@ An automated, self-contained suite to convert any version (current or future) of
 
 ---
 
-## 🛠️ Usage Modes
+## 🛠️ Usage Guide
 
-### Option 1: Convert Directly from GitHub
-- Enter any GitHub repository URL (e.g., \https://github.com/DCGO2/DCGO.git\) and specify the branch or tag.
-- The converter clones the version into an isolated workspace, applies all patches, compiles the APK, and prompts if you want to install it on your Android tablet via USB.
-
-### Option 2: Convert Local DCGO Folder
-- If you already have the DCGO source code cloned on your machine (default: \C:\Users\Administrator\Desktop\dcgo android\PROD\DCGO\), select this option.
-- The converter validates the directory, applies all fixes, and triggers the build.
-
-### Option 3: Install Latest APK + Starter Deck to Tablet (ADB)
-- Installs the newest compiled APK from \output/\ directly onto any USB-connected Android device (\db install -r\).
-- Automatically copies the starter deck to the game's Android storage (\/sdcard/Android/data/com.DCGO.DCGO/files/Decks/StarterDeck_01.txt\).
-- Wakes the screen and launches the game automatically.
-
-### Option 4: Check Environment
-- Performs automated diagnostics:
-  - Unity Editor path (2021.3.x)
-  - Android Build Support module (Unity Android Player)
-  - Git version
-  - ADB availability and connected Android devices.
+| Option | Description | Ideal For |
+| :--- | :--- | :--- |
+| **[1] GitHub Clone** | Pulls the latest source code straight from the official repository, patches it, and builds a fresh APK. | First-time setups or major updates. |
+| **[2] Local Folder** | Points to an existing local DCGO project folder (\PROD/DCGO\). Patches the files locally and compiles. | Developers making custom local changes. |
+| **[3] Deploy to Device** | Automatically installs the latest compiled APK (\output/\) to a USB-connected Android device and syncs starter decks. | Pushing the game to your phone/tablet. |
+| **[4] Diagnostics** | Verifies your Unity installation, Android SDK/NDK paths, Git, and ADB device connections. | Troubleshooting setup issues. |
 
 ---
 
-## 🧩 Automatic Patches Applied
+## 🧩 Under the Hood (Automated Patches)
 
-The converter automatically resolves all known Android issues:
+The converter acts as a bridge between the PC-centric original codebase and the mobile ecosystem. Here is what it does automatically behind the scenes:
 
-1. **Mali GPU Shader Bugfix (Black Screens / Pink Textures / Yellow Boxes):**
-   - Injects 6 mobile-optimized HLSL particle shaders into \Assets/Shader_Material/Shader/\ to replace unsupported legacy shaders.
-2. **Dual-Landscape Screen Orientation:**
-   - Sets \ProjectSettings.asset\ to enable AutoRotation between \LandscapeLeft\ and \LandscapeRight\ while disabling Portrait modes (prevents UI clipping and ANR freezes).
-3. **Android Persistent Storage & Safe Deck Parsing:**
-   - Routes deck reading/writing to \Application.persistentDataPath\ in \StreamingAssetsUtility.cs\.
-   - Protects \ContinuousController.cs\ with defensive \int.TryParse\ against formatting crashes.
-4. **Release Mode IL2CPP Build Profile:**
-   - Prepares headless compilation targeting ARM64 and OpenGLES3 with stripped debug symbols.
+*   **Graphics & Shaders:** Injects custom-compiled HLSL mobile shaders (\Mobile-Particle-Add\, \DL_Additive\, etc.) to replace legacy PC particles that cause Mali GPUs to render magenta squares.
+*   **Screen Orientation:** Overrides \ProjectSettings.asset\ to enforce strict \LandscapeLeft\ / \LandscapeRight\ auto-rotation, preventing UI clipping bugs and portrait-mode crashes.
+*   **Persistent Storage Routing:** Modifies \StreamingAssetsUtility.cs\ on the fly to route all deck reading/writing safely to Android's \persistentDataPath\.
+*   **Crash Prevention:** Wraps deck parsing logic in \ContinuousController.cs\ with defensive \TryParse\ methods to prevent fatal app crashes caused by malformed text files.
 
 ---
 
@@ -71,33 +67,34 @@ The converter automatically resolves all known Android issues:
 
 \\\	ext
 DCGO-Converter/
-├── Converter-DCGO.bat          # 1-Click batch launcher
-├── DCGO-Converter.ps1          # Interactive PowerShell orchestrator
-├── Engine-Patch.ps1            # Automated patch engine
-├── Engine-Build.ps1            # Headless Unity batchmode builder
-├── Engine-Deploy.ps1           # ADB installation and deck sync engine
-├── README.md                   # English documentation
-├── README_PT.md                # Portuguese documentation
-├── patches/                    # Patch assets
-│   ├── Shaders/                # Mobile Mali GPU shaders
-│   ├── Editor/                 # ProductionBuild.cs
-│   └── Decks/                  # Starter legal deck
-├── output/                     # Compiled APKs
-│   ├── DCGO-android-latest.apk # Always points to newest build
-│   └── DCGO-android-<date>.apk # Timestamped build archive
-└── logs/                       # Unity batchmode build logs
+├── Converter-DCGO.bat          # 1-Click interactive launcher
+├── DCGO-Converter.ps1          # Core PowerShell orchestrator
+├── Engine-Patch.ps1            # Code injection and shader patcher
+├── Engine-Build.ps1            # Headless Unity IL2CPP compiler
+├── Engine-Deploy.ps1           # ADB installation & storage sync
+├── patches/                    # Repository of Android-ready assets (Shaders, Scripts, Decks)
+├── output/                     # Compiled APKs ready for distribution
+└── logs/                       # Build logs for debugging
 \\\
 
 ---
 
-## 🃏 Adding Custom Decks
+## 🃏 Importing Custom Decks
 
-To add new decks that appear in the game:
-1. Save your deck text file in DigimonCard.io format (card count + card ID, e.g. \4 Coronamon BT25-008\).
-2. Add the required header at the top of the file:
+Decks are fully supported and synced directly to your Android device.
+
+1. Save your deck text file in standard **DigimonCard.io** format.
+2. Ensure the file contains the required header:
    \\\	ext
    Key Card: 0
-   Deck Name: MyCustomDeck
+   Deck Name: My Custom Deck
    Sort Index: 0
    \\\
-3. Use **Option 3** in the menu to push the deck to your tablet via USB, or copy it manually to your Android's \Android/data/com.DCGO.DCGO/files/Decks/\ directory.
+3. Place it in your device's internal storage at:
+   \/sdcard/Android/data/com.DCGO.DCGO/files/Decks/\
+   *(Or just use **Option 3** in the converter to push the Starter Deck automatically).*
+
+---
+<div align="center">
+  <i>Built for the DCGO Community • Seamless Mobile Card Battles</i>
+</div>
