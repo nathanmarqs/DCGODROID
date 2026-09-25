@@ -1,5 +1,5 @@
-﻿<div align="center">
-  <h1>🎮 DCGO Android Converter & Builder</h1>
+<div align="center">
+  <h1>?? DCGO Android Converter & Builder</h1>
   <p><i>The ultimate, fully-automated toolkit to bring Digimon Card Game Online to your mobile device.</i></p>
 
   ![Unity](https://img.shields.io/badge/Unity-2021.3.x-black?style=for-the-badge&logo=unity)
@@ -9,18 +9,18 @@
 
 ---
 
-> *Note: Para ler as instruções em Português, veja [\README_PT.md\](./README_PT.md).*
+> *Note: Para ler as instru��es em Portugu�s, veja [\README_PT.md\](./README_PT.md).*
 
 Welcome to the **DCGO Android Converter**. This self-contained suite automatically patches, compiles, and deploys any version of **DCGO (Digimon Card Game Online)** directly to your Android device. No manual coding or shader fixing required.
 
-## ✨ Key Features
-- **🤖 Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
-- **📱 Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
-- **⚡ Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected tablet or phone.
+## ? Key Features
+- **?? Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
+- **?? Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
+- **? Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected Android device.
 
 ---
 
-## 🚀 Quick Start (1-Click)
+## ?? Quick Start (1-Click)
 
 1. Double-click the **\Converter-DCGO.bat\** shortcut in the project root.
 2. An interactive terminal will guide you through the process:
@@ -34,25 +34,25 @@ Welcome to the **DCGO Android Converter**. This self-contained suite automatical
  Choose an option:
   [1] Convert Direct from GitHub (Clone + Patch + Build)
   [2] Convert Local DCGO Folder (Patch + Build)
-  [3] Install Latest APK + Starter Deck to Tablet (ADB USB)
+  [3] Install Latest APK + Starter Deck to device (ADB USB)
   [4] Check Environment & Connected Devices
   [0] Exit
 \\\
 
 ---
 
-## 🛠️ Usage Guide
+## ??? Usage Guide
 
 | Option | Description | Ideal For |
 | :--- | :--- | :--- |
 | **[1] GitHub Clone** | Pulls the latest source code straight from the official repository, patches it, and builds a fresh APK. | First-time setups or major updates. |
 | **[2] Local Folder** | Points to an existing local DCGO project folder (\PROD/DCGO\). Patches the files locally and compiles. | Developers making custom local changes. |
-| **[3] Deploy to Device** | Automatically installs the latest compiled APK (\output/\) to a USB-connected Android device and syncs starter decks. | Pushing the game to your phone/tablet. |
+| **[3] Deploy to Device** | Automatically installs the latest compiled APK (\output/\) to a USB-connected Android device and syncs starter decks. | Pushing the game to your Android device. |
 | **[4] Diagnostics** | Verifies your Unity installation, Android SDK/NDK paths, Git, and ADB device connections. | Troubleshooting setup issues. |
 
 ---
 
-## 🧩 Under the Hood (Automated Patches)
+## ?? Under the Hood (Automated Patches)
 
 The converter acts as a bridge between the PC-centric original codebase and the mobile ecosystem. Here is what it does automatically behind the scenes:
 
@@ -63,23 +63,23 @@ The converter acts as a bridge between the PC-centric original codebase and the 
 
 ---
 
-## 📁 Directory Structure
+## ?? Directory Structure
 
 \\\	ext
 DCGO-Converter/
-├── Converter-DCGO.bat          # 1-Click interactive launcher
-├── DCGO-Converter.ps1          # Core PowerShell orchestrator
-├── Engine-Patch.ps1            # Code injection and shader patcher
-├── Engine-Build.ps1            # Headless Unity IL2CPP compiler
-├── Engine-Deploy.ps1           # ADB installation & storage sync
-├── patches/                    # Repository of Android-ready assets (Shaders, Scripts, Decks)
-├── output/                     # Compiled APKs ready for distribution
-└── logs/                       # Build logs for debugging
++-- Converter-DCGO.bat          # 1-Click interactive launcher
++-- DCGO-Converter.ps1          # Core PowerShell orchestrator
++-- Engine-Patch.ps1            # Code injection and shader patcher
++-- Engine-Build.ps1            # Headless Unity IL2CPP compiler
++-- Engine-Deploy.ps1           # ADB installation & storage sync
++-- patches/                    # Repository of Android-ready assets (Shaders, Scripts, Decks)
++-- output/                     # Compiled APKs ready for distribution
++-- logs/                       # Build logs for debugging
 \\\
 
 ---
 
-## 🃏 Importing Custom Decks
+## ?? Importing Custom Decks
 
 Decks are fully supported and synced directly to your Android device.
 
@@ -96,5 +96,5 @@ Decks are fully supported and synced directly to your Android device.
 
 ---
 <div align="center">
-  <i>Built for the DCGO Community • Seamless Mobile Card Battles</i>
+  <i>Built for the DCGO Community � Seamless Mobile Card Battles</i>
 </div>

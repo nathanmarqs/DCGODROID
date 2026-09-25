@@ -18,7 +18,7 @@ Uma ferramenta automatizada e autossuficiente para transformar qualquer versão 
  Escolha uma opcao:
   [1] Converter Versao Direto do GitHub (Clonar + Patch + Build)
   [2] Converter Pasta Local do DCGO (Patch + Build)
-  [3] Instalar Ultimo APK + Deck no Tablet (ADB USB)
+  [3] Instalar Ultimo APK + Deck no aparelho (ADB USB)
   [4] Verificar Ambiente e Dispositivos Conectados
   [0] Sair
 ```
@@ -29,14 +29,14 @@ Uma ferramenta automatizada e autossuficiente para transformar qualquer versão 
 
 ### Opção 1: Converter Direto do GitHub
 - Você pode colar qualquer repositório (ex: `https://github.com/DCGO2/DCGO.git`) e selecionar a branch ou tag desejada.
-- O conversor baixa a versão mais recente em um workspace isolado, aplica todos os patches, compila o APK e pergunta se você já quer instalar no seu tablet via USB.
+- O conversor baixa a versão mais recente em um workspace isolado, aplica todos os patches, compila o APK e pergunta se você já quer instalar no seu aparelho via USB.
 
 ### Opção 2: Converter Pasta Local do DCGO
 - Se você já tem uma pasta com o código-fonte do DCGO baixada no seu computador (por exemplo: `C:\Users\Administrator\Desktop\dcgo android\PROD\DCGO`), escolha essa opção.
 - O conversor valida a pasta, aplica as correções e compila o APK.
 
-### Opção 3: Instalar Último APK + Deck no Tablet
-- Instala o APK mais recente gerado na pasta `output/` diretamente no tablet conectado via USB (`adb install -r`).
+### Opção 3: Instalar Último APK + Deck no aparelho
+- Instala o APK mais recente gerado na pasta `output/` diretamente no aparelho conectado via USB (`adb install -r`).
 - Copia automaticamente o Deck Inicial para a pasta do jogo no Android (`/sdcard/Android/data/com.DCGO.DCGO/files/Decks/StarterDeck_01.txt`).
 - Acorda a tela e inicia o jogo automaticamente.
 
@@ -51,12 +51,12 @@ Uma ferramenta automatizada e autossuficiente para transformar qualquer versão 
 
 ## 🧩 Patches Automáticos Aplicados
 
-O conversor resolve automaticamente todos os bugs que impediam o DCGO de rodar em tablets e celulares Android:
+O conversor resolve automaticamente todos os bugs que impediam o DCGO de rodar em aparelhos e celulares Android:
 
 1. **Correção de Shaders Mali GPU (Telas pretas / texturas rosas):**
    - Substitui shaders de partículas depreciados e incompatíveis do URP por shaders HLSL nativos compilados especificamente para GPUs Mali (`MaliMaskedAdditive`, `Legacy-Particle-Add`, etc.).
 2. **Orientação Dual-Landscape:**
-   - Habilita autorotação contínua entre `Landscape Left` e `Landscape Right` no `ProjectSettings.asset`, permitindo virar o tablet para qualquer um dos dois lados sem cair em modo retrato.
+   - Habilita autorotação contínua entre `Landscape Left` e `Landscape Right` no `ProjectSettings.asset`, permitindo virar o aparelho para qualquer um dos dois lados sem cair em modo retrato.
 3. **Persistência de Decks no Android:**
    - Corrige o `StreamingAssetsUtility.cs` e `ContinuousController.cs` para carregar listas de cartas a partir de `Application.persistentDataPath` (onde o Android permite leitura e escrita livre).
    - Inclui proteção com `int.TryParse` contra travamentos ao ler arquivos de deck sem cabeçalho padrão.
@@ -97,5 +97,5 @@ Para que novos decks apareçam automaticamente no jogo:
    Deck Name: NomeDoSeuDeck
    Deck Color: Red
    ```
-3. Salve na pasta `patches/Decks/` ou transfira diretamente para a pasta do tablet:
+3. Salve na pasta `patches/Decks/` ou transfira diretamente para a pasta do aparelho:
    `/sdcard/Android/data/com.DCGO.DCGO/files/Decks/`
