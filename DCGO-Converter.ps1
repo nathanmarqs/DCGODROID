@@ -213,10 +213,31 @@ function Invoke-LocalConversion {
 
     Write-Host "`n--- [2] Convert Local DCGO Project Folder ---" -ForegroundColor Yellow
     if (-not $ProjectDir) {
-        $defaultLocal = "C:\Users\Administrator\Desktop\dcgo android\PROD\DCGO"
-        Write-Host "Press ENTER to use: $defaultLocal" -ForegroundColor Gray
-        $inputPath = Read-Host "Path to local DCGO project folder"
-        $ProjectDir = if ($inputPath) { $inputPath.Trim('"') } else { $defaultLocal }
+        $workspacesDir = Join-Path $ScriptDir "workspaces"
+        $availableDirs = @()
+        if (Test-Path $workspacesDir) {
+            $availableDirs = Get-ChildItem -Path $workspacesDir -Directory | Where-Object { Test-Path (Join-Path $_.FullName "Assets") }
+        }
+        
+        if ($availableDirs.Count -gt 0) {
+            Write-Host "Workspaces encontrados:" -ForegroundColor Cyan
+            for ($i = 0; $i -lt $availableDirs.Count; $i++) {
+                Write-Host "  [$($i+1)] $($availableDirs[$i].Name)"
+            }
+            Write-Host "  [0] Digitar caminho manualmente"
+            $choice = Read-Host "Escolha uma opcao (0-$($availableDirs.Count))"
+            
+            if ($choice -match '^\d+$' -and [int]$choice -gt 0 -and [int]$choice -le $availableDirs.Count) {
+                $ProjectDir = $availableDirs[[int]$choice - 1].FullName
+            }
+        }
+        
+        if (-not $ProjectDir) {
+            $defaultLocal = "C:\Users\Administrator\Desktop\dcgo android\PROD\DCGO"
+            Write-Host "`nPressione ENTER para usar o padrao: $defaultLocal" -ForegroundColor Gray
+            $inputPath = Read-Host "Ou digite o caminho para a pasta local do DCGO"
+            $ProjectDir = if ($inputPath) { $inputPath.Trim('"') } else { $defaultLocal }
+        }
     }
 
     if (-not (Test-Path (Join-Path $ProjectDir "Assets"))) {
