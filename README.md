@@ -17,6 +17,7 @@ Welcome to the **DCGO Android Converter**. This self-contained suite automatical
 - **🤖 Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
 - **📱 Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
 - **⚡ Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected Android device.
+- **🔄 In-Game Deck Sync:** Features an injected Options menu button to easily sync custom decks directly from your Android Downloads folder.
 
 ---
 
@@ -55,9 +56,11 @@ Before running the converter, ensure your system has the following installed:
 | Option | Description | Ideal For |
 | :--- | :--- | :--- |
 | **[1] GitHub Clone** | Pulls the latest source code straight from the official repository, patches it, and builds a fresh APK. | First-time setups or major updates. |
-| **[2] Local Folder** | Points to an existing local DCGO project folder (`PROD/DCGO`). Patches the files locally and compiles. | Developers making custom local changes. |
-| **[3] Deploy to Device** | Automatically installs the latest compiled APK (`output/`) to a USB-connected Android device and syncs starter decks. | Pushing the game to your Android device. |
+| **[2] Local Folder** | Scans for previous workspaces or local DCGO directories and lets you select them interactively to re-patch and re-compile. | Developers making local changes. |
+| **[3] Deploy to Device** | Automatically installs the latest compiled APK (`output/`) to a USB-connected Android device. | Pushing the game to your Android device. |
 | **[4] Diagnostics** | Verifies your Unity installation, Android SDK/NDK paths, Git, and ADB device connections. | Troubleshooting setup issues. |
+
+> 🛡️ **Play Protect Warning:** Because the APK is compiled locally on your machine and not downloaded from the Google Play Store, Android's Play Protect will flag it as an "Unknown Developer" when installing. This is 100% normal for sideloaded apps. Simply click **More details -> Install anyway**.
 
 ---
 
@@ -69,6 +72,7 @@ The converter acts as a bridge between the PC-centric original codebase and the 
 *   **Screen Orientation:** Overrides `ProjectSettings.asset` to enforce strict `LandscapeLeft` / `LandscapeRight` auto-rotation, preventing UI clipping bugs and portrait-mode crashes.
 *   **Persistent Storage Routing:** Modifies `StreamingAssetsUtility.cs` on the fly to route all deck reading/writing safely to Android's `persistentDataPath`.
 *   **Crash Prevention:** Wraps deck parsing logic in `ContinuousController.cs` with defensive `TryParse` methods to prevent fatal app crashes caused by malformed text files.
+*   **In-Game UI Injection:** Injects a custom `OptionPanel.cs` into the game UI to allow players to easily sync custom `.txt` decks from their public Android folders to the internal app sandbox.
 
 ---
 
@@ -90,7 +94,7 @@ DCGO-Converter/
 
 ## 🃏 Importing Custom Decks
 
-Decks are fully supported and synced directly to your Android device.
+Decks are fully supported and can be synced directly inside the game!
 
 1. Save your deck text file in standard **DigimonCard.io** format.
 2. Ensure the file contains the required header:
@@ -99,9 +103,11 @@ Decks are fully supported and synced directly to your Android device.
    Deck Name: My Custom Deck
    Sort Index: 0
    ```
-3. Place it in your device's internal storage at:
-   `/sdcard/Android/data/com.DCGO.DCGO/files/Decks/`
-   *(Or just use **Option 3** in the converter to push the Starter Deck automatically).*
+3. Copy your deck `.txt` files to your Android device's public Downloads folder at:
+   `/Download/DCGO/Decks/` *(Create these folders if they don't exist)*
+4. Open the DCGO app on your phone, go to **Options**, and click the **Sincronizar Decks** button to instantly import them!
+
+*(Alternatively, use **Option 3** in the converter to push the Starter Deck automatically via USB).*
 
 ---
 <div align="center">
