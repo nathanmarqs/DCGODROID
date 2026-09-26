@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class OptionPanel : OffAnimation
 {
@@ -36,8 +36,12 @@ public class OptionPanel : OffAnimation
         }
     }
 
+    private bool _btnCreated = false;
     public void Open()
     {
+#if UNITY_ANDROID
+        if (!_btnCreated) { CreateSyncButton(); _btnCreated = true; }
+#endif
         _isOpen = true;
         gameObject.SetActive(true);
         _anim.SetInteger(OpenHash, 1);
@@ -230,31 +234,64 @@ public class OptionPanel : OffAnimation
         Application.Quit();
 #endif
     }
+    void CreateSyncButton()
+    {
+        UnityEngine.UI.Button[] buttons = GetComponentsInChildren<UnityEngine.UI.Button>(true);
+        if (buttons.Length > 0)
+        {
+            UnityEngine.UI.Button templateBtn = null;
+            foreach (var b in buttons)
+            {
+                if (b.transform.parent != null && b.transform.parent.GetComponent<UnityEngine.UI.GridLayoutGroup>() != null)
+                {
+                    templateBtn = b;
+                    break;
+                }
+            }
+            if (templateBtn == null) templateBtn = buttons[buttons.Length - 1];
+
+            UnityEngine.UI.Button newBtn = Instantiate(templateBtn, templateBtn.transform.parent);
+            newBtn.transform.SetAsLastSibling();
+            
+            newBtn.onClick.RemoveAllListeners();
+            newBtn.onClick.AddListener(SyncDecksFromDownloads);
+            
+            Component[] comps = newBtn.GetComponentsInChildren<Component>(true);
+            foreach(var c in comps) 
+            {
+                if (c.GetType().Name.Contains("Text")) 
+                {
+                    var prop = c.GetType().GetProperty("text");
+                    if (prop != null) prop.SetValue(c, "Sync Decks");
+                }
+            }
+        }
+    }
 
     private string _syncMessage = "";
+    private float _messageTimer = 0f;
+
+    void Update()
+    {
+        if (_messageTimer > 0)
+        {
+            _messageTimer -= Time.unscaledDeltaTime;
+            if (_messageTimer <= 0) _syncMessage = "";
+        }
+    }
+
     void OnGUI()
     {
-        if (_isOpen)
+        if (_isOpen && !string.IsNullOrEmpty(_syncMessage))
         {
             float scaleX = Screen.width / 1920f;
             float scaleY = Screen.height / 1080f;
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX, scaleY, 1));
             
-            GUIStyle btnStyle = new GUIStyle(GUI.skin.button);
-            btnStyle.fontSize = 40;
-            
-            if (GUI.Button(new Rect(50, 50, 450, 120), "Sincronizar Decks\n(Downloads/DCGO/Decks)", btnStyle))
-            {
-                SyncDecksFromDownloads();
-            }
-            
-            if (!string.IsNullOrEmpty(_syncMessage))
-            {
-                GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-                labelStyle.fontSize = 40;
-                labelStyle.normal.textColor = Color.green;
-                GUI.Label(new Rect(50, 190, 800, 100), _syncMessage, labelStyle);
-            }
+            GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+            labelStyle.fontSize = 40;
+            labelStyle.normal.textColor = Color.green;
+            GUI.Label(new Rect(350, 45, 800, 100), _syncMessage, labelStyle);
         }
     }
 
@@ -267,6 +304,7 @@ public class OptionPanel : OffAnimation
         {
             try { System.IO.Directory.CreateDirectory(publicPath); } catch {}
             _syncMessage = "Pasta criada! Coloque os .txt nela.";
+            _messageTimer = 3f;
             return;
         }
         
@@ -286,10 +324,13 @@ public class OptionPanel : OffAnimation
                 count++;
             }
             _syncMessage = $"Sucesso! {count} decks copiados.";
+            _messageTimer = 3f;
         }
         catch (System.Exception ex)
         {
             _syncMessage = "Erro: " + ex.Message;
+            _messageTimer = 5f;
         }
     }
 }
+
