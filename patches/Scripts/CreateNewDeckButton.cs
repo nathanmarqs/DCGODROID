@@ -25,24 +25,46 @@ public class CreateNewDeckButton : MonoBehaviour
         GameObject syncObj = Instantiate(this.gameObject, transform.parent);
         syncObj.name = "SyncDeckButton";
         
-        Destroy(syncObj.GetComponent<CreateNewDeckButton>());
+        DestroyImmediate(syncObj.GetComponent<CreateNewDeckButton>());
 
         Component[] comps = syncObj.GetComponentsInChildren<Component>(true);
         foreach (var c in comps)
         {
-            if (c.GetType().Name.Contains("Text"))
+            string tName = c.GetType().Name;
+            
+            // Remove localizers that overwrite our text (DestroyImmediate prevents their Start() from running!)
+            if (tName.Contains("Localize") || tName.Contains("Localization"))
             {
-                var prop = c.GetType().GetProperty("text");
+                DestroyImmediate(c);
+            }
+            
+            // Set text
+            if (tName.Contains("Text"))
+            {
+                var prop = c.GetType().GetProperty("text", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.FlattenHierarchy);
                 if (prop != null) prop.SetValue(c, "Import Decks");
             }
         }
 
-        UnityEngine.UI.Button btn = syncObj.GetComponent<UnityEngine.UI.Button>();
-        if (btn != null)
+        // Fix the button behavior (Replace onClick entirely to wipe out Inspector Persistent listeners!)
+        UnityEngine.UI.Button[] btns = syncObj.GetComponentsInChildren<UnityEngine.UI.Button>(true);
+        bool hasBtn = false;
+        foreach (var b in btns)
         {
-            btn.onClick.RemoveAllListeners();
-            btn.onClick.AddListener(SyncDecksFromDownloadsLogic);
+            b.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
+            b.onClick.AddListener(SyncDecksFromDownloadsLogic);
+            hasBtn = true;
         }
+
+        if (!hasBtn)
+        {
+            UnityEngine.UI.Button newBtn = syncObj.gameObject.AddComponent<UnityEngine.UI.Button>();
+            newBtn.onClick.AddListener(SyncDecksFromDownloadsLogic);
+        }
+
+        // Just in case there is a custom click handler we missed
+        UnityEngine.EventSystems.EventTrigger trigger = syncObj.GetComponentInChildren<UnityEngine.EventSystems.EventTrigger>(true);
+        if (trigger != null) Destroy(trigger);
         
         syncObj.transform.SetSiblingIndex(1);
     }
@@ -253,5 +275,8 @@ public class CreateNewDeckButton : MonoBehaviour
         OnExit();
     }
 }
+
+
+
 
 
