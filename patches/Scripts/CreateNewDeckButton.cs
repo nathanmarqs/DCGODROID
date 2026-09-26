@@ -93,7 +93,7 @@ public class CreateNewDeckButton : MonoBehaviour
                                 var activity = unityPlayer.GetStatic<UnityEngine.AndroidJavaObject>("currentActivity");
                                 activity.Call("startActivity", intent);
                             }
-                            ShowDialog("Permissão Total Necessária (Android 11+).\nAutorize o acesso nas configurações que acabaram de abrir e tente novamente.");
+                            ShowDialog("All Files Access Required (Android 11+).\nPlease allow access in the settings menu that just opened, then try again.");
                             return;
                         }
                     }
@@ -104,7 +104,7 @@ public class CreateNewDeckButton : MonoBehaviour
         if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.ExternalStorageRead))
         {
             UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.ExternalStorageRead);
-            ShowDialog("Permissão de leitura solicitada.\nAceite e tente novamente.");
+            ShowDialog("Storage Permission Required.\nPlease grant the requested permission to import decks.");
             return;
         }
 #endif
@@ -115,7 +115,7 @@ public class CreateNewDeckButton : MonoBehaviour
         if (!System.IO.Directory.Exists(publicPath))
         {
             try { System.IO.Directory.CreateDirectory(publicPath); } catch {}
-            ShowDialog("Pasta criada!\nColoque os .txt em Downloads/DCGO/Decks");
+            ShowDialog("Folder created!\nPlease place your .txt deck files inside Downloads/DCGO/Decks");
             return;
         }
         
@@ -134,7 +134,7 @@ public class CreateNewDeckButton : MonoBehaviour
                 System.IO.File.Copy(f, dest, true);
                 count++;
             }
-            ShowDialog($"Sucesso!\n{count} decks importados.");
+            ShowDialog(\$"Success!\n{count} decks imported successfully.");
             
             if (ContinuousController.instance != null)
             {
@@ -147,7 +147,7 @@ public class CreateNewDeckButton : MonoBehaviour
         }
         catch (System.Exception ex)
         {
-            ShowDialog("Erro: " + ex.Message);
+            ShowDialog("Error: " + ex.Message);
         }
     }
 
@@ -311,6 +311,7 @@ public class CreateNewDeckButton : MonoBehaviour
         OnExit();
     }
 }
+
 
 
 
