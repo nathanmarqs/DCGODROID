@@ -99,9 +99,9 @@ public class SelectDeck : OffAnimation
 
     public IEnumerator SetDeckList(bool open)
     {
-        for (int i = 0; i < deckInfoPrefabParentScroll.content.childCount; i++)
+                for (int i = 0; i < deckInfoPrefabParentScroll.content.childCount; i++)
         {
-            if (i > 0)
+            if (deckInfoPrefabParentScroll.content.GetChild(i).GetComponent<DeckInfoPrefab>() != null)
             {
                 Destroy(deckInfoPrefabParentScroll.content.GetChild(i).gameObject);
             }
@@ -323,4 +323,5 @@ public class SelectDeck : OffAnimation
         Opening.instance.SetUpActiveYesNoObject(Commands, CommandTexts, $"全デッキを削除しますか?", false);
     }
 }
+
 
