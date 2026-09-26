@@ -134,7 +134,7 @@ public class CreateNewDeckButton : MonoBehaviour
                 System.IO.File.Copy(f, dest, true);
                 count++;
             }
-            ShowDialog(\$"Success!\n{count} decks imported successfully.");
+            ShowDialog($"Success!\n{count} decks imported successfully.");
             
             if (ContinuousController.instance != null)
             {
@@ -311,6 +311,7 @@ public class CreateNewDeckButton : MonoBehaviour
         OnExit();
     }
 }
+
 
 
 
