@@ -76,7 +76,7 @@ public class CreateNewDeckButton : MonoBehaviour
 #if UNITY_ANDROID
         try {
             // Android 11+ (API 30+) Requires MANAGE_EXTERNAL_STORAGE for .txt files
-            using (var version = new UnityEngine.AndroidJavaClass("android.os.Build"))
+            using (var version = new UnityEngine.AndroidJavaClass("android.os.Build$VERSION"))
             {
                 if (version.GetStatic<int>("SDK_INT") >= 30)
                 {
@@ -311,6 +311,7 @@ public class CreateNewDeckButton : MonoBehaviour
         OnExit();
     }
 }
+
 
 
 
