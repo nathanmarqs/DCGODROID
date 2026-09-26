@@ -73,6 +73,42 @@ public class CreateNewDeckButton : MonoBehaviour
     {
         if (Opening.instance != null) Opening.instance.PlayDecisionSE();
 
+#if UNITY_ANDROID
+        try {
+            // Android 11+ (API 30+) Requires MANAGE_EXTERNAL_STORAGE for .txt files
+            using (var version = new UnityEngine.AndroidJavaClass("android.os.Build"))
+            {
+                if (version.GetStatic<int>("SDK_INT") >= 30)
+                {
+                    using (var env = new UnityEngine.AndroidJavaClass("android.os.Environment"))
+                    {
+                        if (!env.CallStatic<bool>("isExternalStorageManager"))
+                        {
+                            using (var intent = new UnityEngine.AndroidJavaObject("android.content.Intent", "android.settings.MANAGE_APP_ALL_FILES_ACCESS_PERMISSION"))
+                            {
+                                var uriClass = new UnityEngine.AndroidJavaClass("android.net.Uri");
+                                var uri = uriClass.CallStatic<UnityEngine.AndroidJavaObject>("parse", "package:" + UnityEngine.Application.identifier);
+                                intent.Call<UnityEngine.AndroidJavaObject>("setData", uri);
+                                var unityPlayer = new UnityEngine.AndroidJavaClass("com.unity3d.player.UnityPlayer");
+                                var activity = unityPlayer.GetStatic<UnityEngine.AndroidJavaObject>("currentActivity");
+                                activity.Call("startActivity", intent);
+                            }
+                            ShowDialog("Permissão Total Necessária (Android 11+).\nAutorize o acesso nas configurações que acabaram de abrir e tente novamente.");
+                            return;
+                        }
+                    }
+                }
+            }
+        } catch (System.Exception ex) { Debug.Log("Error checking manage external storage: " + ex.Message); }
+
+        if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.ExternalStorageRead))
+        {
+            UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.ExternalStorageRead);
+            ShowDialog("Permissão de leitura solicitada.\nAceite e tente novamente.");
+            return;
+        }
+#endif
+
         string publicPath = "/storage/emulated/0/Download/DCGO/Decks";
         string internalPath = System.IO.Path.Combine(Application.persistentDataPath, "Decks").Replace("\\", "/");
         
@@ -275,6 +311,8 @@ public class CreateNewDeckButton : MonoBehaviour
         OnExit();
     }
 }
+
+
 
 
 
