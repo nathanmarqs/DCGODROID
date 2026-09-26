@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory=$true)]
     [Alias("TargetProject")]
     [string]$ProjectPath
@@ -189,6 +189,18 @@ if (Test-Path -LiteralPath $scriptsPatchDir) {
         Write-Host "  -> Applied Core Script: $($_.Name)" -ForegroundColor Green
     }
 }
+
+# 8. Unity 6 Compatibility Fix (GetInstanceID -> GetHashCode)
+Write-Host "[8/8] Applying Unity 6 compatibility fixes..." -ForegroundColor Yellow
+$csFiles = Get-ChildItem -Path (Join-Path $ProjectPath "Assets") -Recurse -Filter "*.cs"
+foreach ($file in $csFiles) {
+    $content = Get-Content $file.FullName -Raw
+    if ($content -match "GetInstanceID\(\)") {
+        $content = $content -replace "GetInstanceID\(\)", "GetHashCode()"
+        Set-Content -Path $file.FullName -Value $content -NoNewline
+    }
+}
+Write-Host "  -> Unity 6 fixes applied (GetInstanceID -> GetHashCode)" -ForegroundColor Green
 
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host " [Engine-Patch] All patches applied successfully!" -ForegroundColor Green
