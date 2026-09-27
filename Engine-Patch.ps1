@@ -205,3 +205,15 @@ Write-Host "  -> Unity 6 fixes applied (GetInstanceID -> GetHashCode)" -Foregrou
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host " [Engine-Patch] All patches applied successfully!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
+
+# 9. Inject Custom Android Manifest
+Write-Host "[9/9] Injecting Custom AndroidManifest.xml..." -ForegroundColor Yellow
+$pluginsDir = Join-Path $ProjectPath "Assets\Plugins\Android"
+if (!(Test-Path -LiteralPath $pluginsDir)) {
+    New-Item -ItemType Directory -Path $pluginsDir -Force | Out-Null
+}
+$manifestSrc = Join-Path $patchesDir "Plugins\Android\AndroidManifest.xml"
+if (Test-Path -LiteralPath $manifestSrc) {
+    Copy-Item -LiteralPath $manifestSrc -Destination (Join-Path $pluginsDir "AndroidManifest.xml") -Force
+    Write-Host "  -> Injected: Assets\Plugins\Android\AndroidManifest.xml" -ForegroundColor Green
+}
