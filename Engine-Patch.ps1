@@ -219,3 +219,44 @@ if (Test-Path -LiteralPath $permSrc) {
     Copy-Item -LiteralPath $permSrc -Destination (Join-Path $editorDir "AddAndroidPermissions.cs") -Force
     Write-Host "  -> Injected: Assets\Editor\AddAndroidPermissions.cs" -ForegroundColor Green
 }
+
+# 10. Restore Touch-and-Hold Card Preview in Selection Panels
+Write-Host "[10/10] Restoring touch-and-hold card previews..." -ForegroundColor Yellow
+$patchContent = @"
+            eventTrigger.triggers.Add(entry);
+#if UNITY_ANDROID
+            handCard.ShowOpponent = CanLookReverseCard;
+            EventTrigger.Entry entryDown = new EventTrigger.Entry();
+            entryDown.eventID = EventTriggerType.PointerDown;
+            entryDown.callback.AddListener((x) => { handCard.PointerDown(x); });
+            eventTrigger.triggers.Add(entryDown);
+            EventTrigger.Entry entryUp = new EventTrigger.Entry();
+            entryUp.eventID = EventTriggerType.PointerUp;
+            entryUp.callback.AddListener((x) => { handCard.PointerUp(x); });
+            eventTrigger.triggers.Add(entryUp);
+            EventTrigger.Entry entryExit = new EventTrigger.Entry();
+            entryExit.eventID = EventTriggerType.PointerExit;
+            entryExit.callback.AddListener((x) => { handCard.PointerExit(x); });
+            eventTrigger.triggers.Add(entryExit);
+#endif
+"@
+
+$scpPath = Join-Path $ProjectPath "Assets\Scripts\Script\SelectCardPanel.cs"
+if (Test-Path -LiteralPath $scpPath) {
+    $scpContent = [System.IO.File]::ReadAllText($scpPath)
+    if ($scpContent -notmatch "EventTriggerType.PointerDown") {
+        $scpContent = $scpContent.Replace("eventTrigger.triggers.Add(entry);", $patchContent)
+        [System.IO.File]::WriteAllText($scpPath, $scpContent)
+        Write-Host "  -> SelectCardPanel.cs touch events restored!" -ForegroundColor Green
+    }
+}
+
+$ccpPath = Join-Path $ProjectPath "Assets\Scripts\Script\CheckCardPanel.cs"
+if (Test-Path -LiteralPath $ccpPath) {
+    $ccpContent = [System.IO.File]::ReadAllText($ccpPath)
+    if ($ccpContent -notmatch "EventTriggerType.PointerDown") {
+        $ccpContent = $ccpContent.Replace("eventTrigger.triggers.Add(entry);", $patchContent)
+        [System.IO.File]::WriteAllText($ccpPath, $ccpContent)
+        Write-Host "  -> CheckCardPanel.cs touch events restored!" -ForegroundColor Green
+    }
+}
