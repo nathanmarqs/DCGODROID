@@ -74,6 +74,7 @@ public class CreateNewDeckButton : MonoBehaviour
         if (Opening.instance != null) Opening.instance.PlayDecisionSE();
 
 #if UNITY_ANDROID
+        bool hasMasterAccess = false;
         try {
             // Android 11+ (API 30+) Requires MANAGE_EXTERNAL_STORAGE for .txt files
             using (var version = new UnityEngine.AndroidJavaClass("android.os.Build$VERSION"))
@@ -96,12 +97,16 @@ public class CreateNewDeckButton : MonoBehaviour
                             ShowDialog("All Files Access Required (Android 11+).\nPlease allow access in the settings menu that just opened, then try again.");
                             return;
                         }
+                        else
+                        {
+                            hasMasterAccess = true;
+                        }
                     }
                 }
             }
         } catch (System.Exception ex) { Debug.Log("Error checking manage external storage: " + ex.Message); }
 
-        if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.ExternalStorageRead))
+        if (!hasMasterAccess && !UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.ExternalStorageRead))
         {
             UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.ExternalStorageRead);
             ShowDialog("Storage Permission Required.\nPlease grant the requested permission to import decks.");
@@ -311,6 +316,7 @@ public class CreateNewDeckButton : MonoBehaviour
         OnExit();
     }
 }
+
 
 
 
