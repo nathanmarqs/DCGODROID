@@ -206,15 +206,16 @@ Write-Host "==========================================" -ForegroundColor Green
 Write-Host " [Engine-Patch] All patches applied successfully!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 
-# 9. Inject Custom Android Manifest
-Write-Host "[9/9] Injecting Custom AndroidManifest.xml..." -ForegroundColor Yellow
-$pluginsDir = Join-Path $ProjectPath "Assets\Plugins\Android"
-if (!(Test-Path -LiteralPath $pluginsDir)) {
-    New-Item -ItemType Directory -Path $pluginsDir -Force | Out-Null
-}
-$manifestSrc = Join-Path $patchesDir "Plugins\Android\AndroidManifest.xml"
-if (Test-Path -LiteralPath $manifestSrc) {
-    Copy-Item -LiteralPath $manifestSrc -Destination (Join-Path $pluginsDir "AndroidManifest.xml") -Force
-    Write-Host "  -> Injected: Assets\Plugins\Android\AndroidManifest.xml" -ForegroundColor Green
-}
 
+
+# 9. Inject PostBuild Permission Script
+Write-Host "[9/9] Injecting PostBuild Permission Script..." -ForegroundColor Yellow
+$editorDir = Join-Path $ProjectPath "Assets\Editor"
+if (!(Test-Path -LiteralPath $editorDir)) {
+    New-Item -ItemType Directory -Path $editorDir -Force | Out-Null
+}
+$permSrc = Join-Path $patchesDir "Editor\AddAndroidPermissions.cs"
+if (Test-Path -LiteralPath $permSrc) {
+    Copy-Item -LiteralPath $permSrc -Destination (Join-Path $editorDir "AddAndroidPermissions.cs") -Force
+    Write-Host "  -> Injected: Assets\Editor\AddAndroidPermissions.cs" -ForegroundColor Green
+}
