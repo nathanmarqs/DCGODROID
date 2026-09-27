@@ -217,3 +217,4 @@ if (Test-Path -LiteralPath $manifestSrc) {
     Copy-Item -LiteralPath $manifestSrc -Destination (Join-Path $pluginsDir "AndroidManifest.xml") -Force
     Write-Host "  -> Injected: Assets\Plugins\Android\AndroidManifest.xml" -ForegroundColor Green
 }
+
