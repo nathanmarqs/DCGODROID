@@ -16,13 +16,32 @@ public class AddAndroidPermissions : IPostGenerateGradleAndroidProject
         
         XmlElement manifestNode = manifestDoc.DocumentElement;
         
-        // Create MANAGE_EXTERNAL_STORAGE
-        XmlElement permissionElement = manifestDoc.CreateElement("uses-permission");
-        permissionElement.SetAttribute("name", "http://schemas.android.com/apk/res/android", "android.permission.MANAGE_EXTERNAL_STORAGE");
-        manifestNode.AppendChild(permissionElement);
+        // Check if permission already exists to prevent infinite loop
+        bool alreadyExists = false;
+        foreach (XmlNode child in manifestNode.ChildNodes)
+        {
+            if (child.Name == "uses-permission")
+            {
+                foreach (XmlAttribute attr in child.Attributes)
+                {
+                    if (attr.Value == "android.permission.MANAGE_EXTERNAL_STORAGE")
+                    {
+                        alreadyExists = true;
+                        break;
+                    }
+                }
+            }
+        }
         
-        manifestDoc.Save(manifestPath);
-        
-        UnityEngine.Debug.Log("Injected MANAGE_EXTERNAL_STORAGE into AndroidManifest.xml successfully!");
+        if (!alreadyExists)
+        {
+            // Create MANAGE_EXTERNAL_STORAGE
+            XmlElement permissionElement = manifestDoc.CreateElement("uses-permission");
+            permissionElement.SetAttribute("name", "http://schemas.android.com/apk/res/android", "android.permission.MANAGE_EXTERNAL_STORAGE");
+            manifestNode.AppendChild(permissionElement);
+            
+            manifestDoc.Save(manifestPath);
+            UnityEngine.Debug.Log("Injected MANAGE_EXTERNAL_STORAGE into AndroidManifest.xml successfully!");
+        }
     }
 }
