@@ -5,19 +5,27 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch: {}
 
 jobs:
   build:
     name: Compilar APK
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do Código
+      - name: Checkout do Conversor (Este Repo)
         uses: actions/checkout@v3
+
+      - name: Baixar Jogo Original do GitHub (DCGO2)
+        run: git clone https://github.com/DCGO2/DCGO.git UnityProject
+
+      - name: Aplicar Patches de Correção para Android
+        shell: pwsh
+        run: ./Engine-Patch.ps1 -ProjectPath ./UnityProject
 
       - name: Cache Library
         uses: actions/cache@v3
         with:
-          path: Library
+          path: UnityProject/Library
           key: Library-Android
 
       - name: Compilar Jogo Android
@@ -25,6 +33,7 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          projectPath: UnityProject
           targetPlatform: Android
           buildName: DCGO
           buildsPath: build
