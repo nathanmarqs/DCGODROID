@@ -1,0 +1,38 @@
+name: Build Unity Android & Enviar Telegram
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    name: Compilar APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v3
+
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-Android
+
+      - name: Compilar Jogo Android
+        uses: game-ci/unity-builder@v3
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: Android
+          buildName: DCGO
+          buildsPath: build
+
+      - name: Enviar APK para o Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          document: build/Android/DCGO.apk
+          message: "🚀 Nova versão do DCGO compilada nas nuvens do GitHub e pronta para jogar!"
