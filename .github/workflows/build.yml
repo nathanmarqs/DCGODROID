@@ -39,20 +39,14 @@ jobs:
       - name: Compilar Jogo Android
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           projectPath: UnityProject
           targetPlatform: Android
           buildName: DCGO
           buildsPath: build
           versioning: None
-
-      - name: Salvar arquivo ALF se não houver licença
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: Unity_v2021.3.45f2.alf
-          path: ./**/*.alf
 
       - name: Enviar APK para o Telegram
         uses: appleboy/telegram-action@master
