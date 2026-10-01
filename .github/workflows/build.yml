@@ -22,6 +22,14 @@ jobs:
         shell: pwsh
         run: ./Engine-Patch.ps1 -ProjectPath ./UnityProject
 
+      - name: Commitar Patches Localmente
+        run: |
+          cd UnityProject
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add .
+          git commit -m "Applied Android Patches"
+
       - name: Cache Library
         uses: actions/cache@v4
         with:
@@ -37,6 +45,7 @@ jobs:
           targetPlatform: Android
           buildName: DCGO
           buildsPath: build
+          versioning: None
 
       - name: Salvar arquivo ALF se não houver licença
         uses: actions/upload-artifact@v4
