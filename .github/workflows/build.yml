@@ -38,8 +38,16 @@ jobs:
           buildName: DCGO
           buildsPath: build
 
+      - name: Salvar arquivo ALF se não houver licença
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: Unity_v2021.3.45f2.alf
+          path: ./**/*.alf
+
       - name: Enviar APK para o Telegram
         uses: appleboy/telegram-action@master
+        if: success()
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
