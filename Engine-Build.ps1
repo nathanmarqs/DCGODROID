@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory=$true)]
     [string]$ProjectPath,
     [string]$UnityPath = "",
@@ -57,6 +57,7 @@ $startTime = Get-Date
 
 Write-Host "`n[1/3] Launching Unity Editor process..." -ForegroundColor Yellow
 $process = Start-Process -FilePath $UnityPath -ArgumentList $arguments -WindowStyle Hidden -PassThru
+  $process.PriorityClass = 'BelowNormal'
 
 # Monitor log in real time with visual animated progress bar
 $lastReadPos = 0
