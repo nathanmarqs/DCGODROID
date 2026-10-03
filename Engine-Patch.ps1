@@ -260,3 +260,19 @@ if (Test-Path -LiteralPath $ccpPath) {
         Write-Host "  -> CheckCardPanel.cs touch events restored!" -ForegroundColor Green
     }
 }
+
+# 11. Apply Mobile Performance Profile (30 FPS Cap / Anti-Throttling)
+Write-Host "[11/11] Applying Mobile Performance Cap (30 FPS & No VSync)..." -ForegroundColor Yellow
+$ccPath = Join-Path $ProjectPath "Assets\Scripts\Script\ContinuousController.cs"
+if (Test-Path -LiteralPath $ccPath) {
+    $ccContent = [System.IO.File]::ReadAllText($ccPath)
+    if ($ccContent -notmatch "QualitySettings.vSyncCount = 0;") {
+        $mobilePerf = "Application.targetFrameRate = 30;
+#if UNITY_ANDROID
+        UnityEngine.QualitySettings.vSyncCount = 0;
+#endif"
+        $ccContent = $ccContent.Replace("Application.targetFrameRate = 60;", $mobilePerf)
+        [System.IO.File]::WriteAllText($ccPath, $ccContent)
+        Write-Host "  -> Framerate successfully capped at 30 FPS to prevent thermal throttling!" -ForegroundColor Green
+    }
+}
