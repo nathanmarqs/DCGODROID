@@ -58,6 +58,17 @@ $startTime = Get-Date
 Write-Host "`n[1/3] Launching Unity Editor process..." -ForegroundColor Yellow
 $process = Start-Process -FilePath $UnityPath -ArgumentList $arguments -WindowStyle Hidden -PassThru
   $process.PriorityClass = 'BelowNormal'
+  
+  # Dynamically limit CPU cores to leave headroom for the OS (prevent PC freezing)
+  $totalCores = [Environment]::ProcessorCount
+  if ($totalCores -gt 2) {
+      $coresToUse = if ($totalCores -gt 6) { $totalCores - 2 } else { $totalCores - 1 }
+      $affinityMask = (1 -shl $coresToUse) - 1
+      try {
+          $process.ProcessorAffinity = [System.IntPtr]$affinityMask
+          Write-Host "  -> CPU Headroom enabled: Unity is restricted to $coresToUse/$totalCores cores." -ForegroundColor Cyan
+      } catch {}
+  }
 
 # Monitor log in real time with visual animated progress bar
 $lastReadPos = 0
@@ -199,3 +210,4 @@ Write-Host " SHA256: $hash" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 
 return $latestApkPath
+
