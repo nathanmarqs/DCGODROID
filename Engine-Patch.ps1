@@ -43,7 +43,7 @@ if (Test-Path -LiteralPath $lockedAssetsSrc) {
 
 # 1. Inject Fixed Shaders (Mali GPU Bugfix)
 Write-Host "[1/6] Injecting Mobile & URP Particle Shaders..." -ForegroundColor Yellow
-$targetShaderDir = Join-Path $ProjectPath "Assets\Shader_Material\Shader"
+$targetShaderDir = Join-Path $ProjectPath "Assets/Shader_Material/Shader"
 if (!(Test-Path -LiteralPath $targetShaderDir)) {
     New-Item -ItemType Directory -Path $targetShaderDir -Force | Out-Null
 }
@@ -58,7 +58,7 @@ $shaders = @(
 )
 
 foreach ($sh in $shaders) {
-    $src = Join-Path $patchesDir "Shaders\$sh"
+    $src = Join-Path $patchesDir "Shaders/$sh"
     if (Test-Path -LiteralPath $src) {
         Copy-Item -LiteralPath $src -Destination (Join-Path $targetShaderDir $sh) -Force
         Write-Host "  -> Injected: $sh" -ForegroundColor Green
@@ -70,9 +70,9 @@ foreach ($sh in $shaders) {
     }
 }
 
-$envShaderSrc = Join-Path $patchesDir "Shaders\MobileMaskedAdditive.shader"
+$envShaderSrc = Join-Path $patchesDir "Shaders/MobileMaskedAdditive.shader"
 if (Test-Path -LiteralPath $envShaderSrc) {
-    $envShaderDest = Join-Path $ProjectPath "Assets\Effect\DigitalEnvironmentEffects\Shaders"
+    $envShaderDest = Join-Path $ProjectPath "Assets/Effect\DigitalEnvironmentEffects/Shaders"
     if (!(Test-Path -LiteralPath $envShaderDest)) {
         New-Item -ItemType Directory -Path $envShaderDest -Force | Out-Null
     }
@@ -82,17 +82,17 @@ if (Test-Path -LiteralPath $envShaderSrc) {
 
 # 2. Inject Automated Build Script (ProductionBuild.cs)
 Write-Host "[2/5] Injecting Release Build Script..." -ForegroundColor Yellow
-$editorDir = Join-Path $ProjectPath "Assets\Editor"
+$editorDir = Join-Path $ProjectPath "Assets/Editor"
 if (!(Test-Path -LiteralPath $editorDir)) {
     New-Item -ItemType Directory -Path $editorDir -Force | Out-Null
 }
-$buildScriptSrc = Join-Path $patchesDir "Editor\ProductionBuild.cs"
+$buildScriptSrc = Join-Path $patchesDir "Editor/ProductionBuild.cs"
 Copy-Item -LiteralPath $buildScriptSrc -Destination (Join-Path $editorDir "ProductionBuild.cs") -Force
-Write-Host "  -> Injected: Assets\Editor\ProductionBuild.cs" -ForegroundColor Green
+Write-Host "  -> Injected: Assets/Editor/ProductionBuild.cs" -ForegroundColor Green
 
 # 3. Patch ProjectSettings.asset (Dual Landscape + Android settings)
 Write-Host "[3/5] Configuring ProjectSettings (Dual-Landscape AutoRotation)..." -ForegroundColor Yellow
-$projectSettingsPath = Join-Path $ProjectPath "ProjectSettings\ProjectSettings.asset"
+$projectSettingsPath = Join-Path $ProjectPath "ProjectSettings/ProjectSettings.asset"
 if (Test-Path -LiteralPath $projectSettingsPath) {
     $content = [System.IO.File]::ReadAllText($projectSettingsPath)
     
@@ -127,7 +127,7 @@ if (Test-Path -LiteralPath $graphicsSettingsPath) {
 
 # 4. Patch C# Scripts (StreamingAssetsUtility + ContinuousController)
 Write-Host "[4/5] Applying defensive C# code patches..." -ForegroundColor Yellow
-$sauPath = Join-Path $ProjectPath "Assets\Scripts\Script\StreamingAssetsUtility.cs"
+$sauPath = Join-Path $ProjectPath "Assets/Scripts/Script\StreamingAssetsUtility.cs"
 if (Test-Path -LiteralPath $sauPath) {
     $sauContent = [System.IO.File]::ReadAllText($sauPath)
     if ($sauContent -notmatch "Application\.persistentDataPath") {
@@ -141,7 +141,7 @@ if (Test-Path -LiteralPath $sauPath) {
 }
 
 # 5. Patch ContinuousController (Safe Deck Loading)
-$ccPath = Join-Path $ProjectPath "Assets\Scripts\Script\ContinuousController.cs"
+$ccPath = Join-Path $ProjectPath "Assets/Scripts/Script\ContinuousController.cs"
 if (Test-Path -LiteralPath $ccPath) {
     $ccContent = [System.IO.File]::ReadAllText($ccPath)
     if ($ccContent -match "int KeyCard = int\.Parse") {
@@ -158,7 +158,7 @@ if (Test-Path -LiteralPath $ccPath) {
 # 6. Patch FieldPermanentCard & HandCard (Fix upstream Android compile errors: pressing -> _pressing, requiredTime -> _requiredTime)
 Write-Host "[5/5] Fixing upstream Android syntax bugs (FieldPermanentCard & HandCard)..." -ForegroundColor Yellow
 
-$fpcPath = Join-Path $ProjectPath "Assets\Scripts\Script\FieldPermanentCard.cs"
+$fpcPath = Join-Path $ProjectPath "Assets/Scripts/Script\FieldPermanentCard.cs"
 if (Test-Path -LiteralPath $fpcPath) {
     $fpcContent = [System.IO.File]::ReadAllText($fpcPath)
     $fpcContent = $fpcContent -replace '__pressing', '_pressing'
@@ -169,7 +169,7 @@ if (Test-Path -LiteralPath $fpcPath) {
     Write-Host "  -> FieldPermanentCard.cs Android syntax normalized!" -ForegroundColor Green
 }
 
-$hcPath = Join-Path $ProjectPath "Assets\Scripts\Script\HandCard.cs"
+$hcPath = Join-Path $ProjectPath "Assets/Scripts/Script\HandCard.cs"
 if (Test-Path -LiteralPath $hcPath) {
     $hcContent = [System.IO.File]::ReadAllText($hcPath)
     $hcContent = $hcContent -replace '__pressing', '_pressing'
@@ -184,7 +184,7 @@ if (Test-Path -LiteralPath $hcPath) {
 $scriptsPatchDir = Join-Path $patchesDir "Scripts"
 if (Test-Path -LiteralPath $scriptsPatchDir) {
     Get-ChildItem -LiteralPath $scriptsPatchDir -Filter "*.cs" | ForEach-Object {
-        $dest = Join-Path $ProjectPath "Assets\Scripts\Script\$($_.Name)"
+        $dest = Join-Path $ProjectPath "Assets/Scripts/Script\$($_.Name)"
         Copy-Item -LiteralPath $_.FullName -Destination $dest -Force
         Write-Host "  -> Applied Core Script: $($_.Name)" -ForegroundColor Green
     }
@@ -210,14 +210,14 @@ Write-Host "==========================================" -ForegroundColor Green
 
 # 9. Inject PostBuild Permission Script
 Write-Host "[9/9] Injecting PostBuild Permission Script..." -ForegroundColor Yellow
-$editorDir = Join-Path $ProjectPath "Assets\Editor"
+$editorDir = Join-Path $ProjectPath "Assets/Editor"
 if (!(Test-Path -LiteralPath $editorDir)) {
     New-Item -ItemType Directory -Path $editorDir -Force | Out-Null
 }
 $permSrc = Join-Path $patchesDir "Editor\AddAndroidPermissions.cs"
 if (Test-Path -LiteralPath $permSrc) {
     Copy-Item -LiteralPath $permSrc -Destination (Join-Path $editorDir "AddAndroidPermissions.cs") -Force
-    Write-Host "  -> Injected: Assets\Editor\AddAndroidPermissions.cs" -ForegroundColor Green
+    Write-Host "  -> Injected: Assets/Editor\AddAndroidPermissions.cs" -ForegroundColor Green
 }
 
 # 10. Restore Touch-and-Hold Card Preview in Selection Panels
@@ -241,7 +241,7 @@ $patchContent = @"
 #endif
 "@
 
-$scpPath = Join-Path $ProjectPath "Assets\Scripts\Script\SelectCardPanel.cs"
+$scpPath = Join-Path $ProjectPath "Assets/Scripts/Script\SelectCardPanel.cs"
 if (Test-Path -LiteralPath $scpPath) {
     $scpContent = [System.IO.File]::ReadAllText($scpPath)
     if ($scpContent -notmatch "EventTriggerType.PointerDown") {
@@ -251,7 +251,7 @@ if (Test-Path -LiteralPath $scpPath) {
     }
 }
 
-$ccpPath = Join-Path $ProjectPath "Assets\Scripts\Script\CheckCardPanel.cs"
+$ccpPath = Join-Path $ProjectPath "Assets/Scripts/Script\CheckCardPanel.cs"
 if (Test-Path -LiteralPath $ccpPath) {
     $ccpContent = [System.IO.File]::ReadAllText($ccpPath)
     if ($ccpContent -notmatch "EventTriggerType.PointerDown") {
@@ -260,3 +260,4 @@ if (Test-Path -LiteralPath $ccpPath) {
         Write-Host "  -> CheckCardPanel.cs touch events restored!" -ForegroundColor Green
     }
 }
+
