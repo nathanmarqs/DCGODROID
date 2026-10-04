@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
   <h1>📱 DCGO Android Converter & Builder</h1>
   <p><i>The ultimate, fully-automated toolkit to bring Digimon Card Game Online to your mobile device.</i></p>
 
@@ -9,14 +9,16 @@
 
 ---
 
+> *Note: Para ler as instruções em Português, veja [`README_PT.md`](./README_PT.md).*
+
 Welcome to the **DCGO Android Converter**. This self-contained suite automatically patches, compiles, and deploys any version of **DCGO (Digimon Card Game Online)** directly to your Android device. No manual coding or shader fixing required.
 
 ## 🌟 Key Features
-- **⚡ Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
-- **🎨 Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
+- **🤖 Zero-Touch Build Pipeline:** Fetches directly from GitHub and compiles seamlessly in the background.
+- **📱 Mobile-First Optimization:** Automatically fixes known Android compatibility issues, including Mali GPU shader crashes (pink textures/black screens) and UI scaling.
 - **👆 Native Touch Controls:** Fully restores mobile swipe-scrolling and touch-and-hold card preview mechanics (right-click emulation) tailored for touch screens.
-- **📂 In-Game Deck Sync:** Features an injected native button inside the Decks Menu to easily sync custom decks directly from your Android Downloads folder.
-- **🚀 Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected Android device.
+- **🔄 In-Game Deck Sync:** Features an injected native button inside the Decks Menu to easily sync custom decks directly from your Android Downloads folder.
+- **⚡ Direct ADB Deployment:** Pushes the compiled game and your custom decks straight to your connected Android device.
 
 ---
 
@@ -31,10 +33,10 @@ Before running the converter, ensure your system has the following installed:
 
 ## 🚀 Quick Start (1-Click)
 
-1. Double-click the **Converter-DCGO.bat** shortcut in the project root.
+1. Double-click the **`Converter-DCGO.bat`** shortcut in the project root.
 2. An interactive terminal will guide you through the process:
 
-`	ext
+```text
 ============================================================
              DCGO ANDROID CONVERTER & BUILDER               
    Full Automation: Clone -> Patches Mali/Deck -> APK    
@@ -46,7 +48,7 @@ Before running the converter, ensure your system has the following installed:
   [3] Install Latest APK + Starter Deck to Device (ADB USB)
   [4] Check Environment & Connected Devices
   [0] Exit
-`
+```
 
 ---
 
@@ -56,28 +58,28 @@ Before running the converter, ensure your system has the following installed:
 | :--- | :--- | :--- |
 | **[1] GitHub Clone** | Pulls the latest source code straight from the official repository, patches it, and builds a fresh APK. | First-time setups or major updates. |
 | **[2] Local Folder** | Scans for previous workspaces or local DCGO directories and lets you select them interactively to re-patch and re-compile. | Developers making local changes. |
-| **[3] Deploy to Device** | Automatically installs the latest compiled APK (output/) to a USB-connected Android device. | Pushing the game to your Android device. |
+| **[3] Deploy to Device** | Automatically installs the latest compiled APK (`output/`) to a USB-connected Android device. | Pushing the game to your Android device. |
 | **[4] Diagnostics** | Verifies your Unity installation, Android SDK/NDK paths, Git, and ADB device connections. | Troubleshooting setup issues. |
 
-> ⚠️ **Play Protect Warning:** Because the APK is compiled locally on your machine and not downloaded from the Google Play Store, Android's Play Protect will flag it as an "Unknown Developer" when installing. This is 100% normal for sideloaded apps. Simply click **More details -> Install anyway**.
+> 🛡️ **Play Protect Warning:** Because the APK is compiled locally on your machine and not downloaded from the Google Play Store, Android's Play Protect will flag it as an "Unknown Developer" when installing. This is 100% normal for sideloaded apps. Simply click **More details -> Install anyway**.
 
 ---
 
-## ⚙️ Under the Hood (Automated Patches)
+## 🧩 Under the Hood (Automated Patches)
 
 The converter acts as a bridge between the PC-centric original codebase and the mobile ecosystem. Here is what it does automatically behind the scenes:
 
-*   **Graphics & Shaders:** Injects custom-compiled HLSL mobile shaders (Mobile-Particle-Add, DL_Additive, etc.) to replace legacy PC particles that cause Mali GPUs to render magenta squares.
-*   **Touch Input Overrides:** Injects MobileScrollFixer.cs to restore raw swipe functionality on locked UI elements, and dynamically wires PointerDown event triggers to emulate right-click card inspections on mobile.
-*   **Android Scoped Storage Bypass:** Customizes the AndroidManifest.xml via AddAndroidPermissions.cs post-build injection, enabling API 30+ MANAGE_EXTERNAL_STORAGE to seamlessly read .txt files on modern Android.
-*   **Crash Prevention:** Wraps deck parsing logic in ContinuousController.cs with defensive TryParse methods to prevent fatal app crashes caused by malformed text files.
-*   **In-Game UI Injection:** Dynamically clones UI elements inside CreateNewDeckButton.cs to safely inject an **Import Decks** button in the deck selection screen without destroying the native C# object lifecycle.
+*   **Graphics & Shaders:** Injects custom-compiled HLSL mobile shaders (`Mobile-Particle-Add`, `DL_Additive`, etc.) to replace legacy PC particles that cause Mali GPUs to render magenta squares.
+*   **Touch Input Overrides:** Injects `MobileScrollFixer.cs` to restore raw swipe functionality on locked UI elements, and dynamically wires `PointerDown` event triggers to emulate right-click card inspections on mobile.
+*   **Android Scoped Storage Bypass:** Customizes the `AndroidManifest.xml` via `AddAndroidPermissions.cs` post-build injection, enabling API 30+ `MANAGE_EXTERNAL_STORAGE` to seamlessly read `.txt` files on modern Android.
+*   **Crash Prevention:** Wraps deck parsing logic in `ContinuousController.cs` with defensive `TryParse` methods to prevent fatal app crashes caused by malformed text files.
+*   **In-Game UI Injection:** Dynamically clones UI elements inside `CreateNewDeckButton.cs` to safely inject an **Import Decks** button in the deck selection screen without destroying the native C# object lifecycle.
 
 ---
 
 ## 📂 Directory Structure
 
-`	ext
+```text
 DCGO-Converter/
 ├── Converter-DCGO.bat          # 1-Click interactive launcher
 ├── DCGO-Converter.ps1          # Core PowerShell orchestrator
@@ -87,7 +89,7 @@ DCGO-Converter/
 ├── patches/                    # Repository of Android-ready assets (Shaders, Scripts, Decks)
 ├── output/                     # Compiled APKs ready for distribution
 └── logs/                       # Build logs for debugging
-`
+```
 
 ---
 
@@ -96,8 +98,8 @@ DCGO-Converter/
 Decks are fully supported and can be synced directly inside the game!
 
 1. Save your deck text file in standard **DigimonCard.io** format.
-2. Copy your deck .txt files to your Android device's public Downloads folder at:
-   /Download/DCGO/Decks/ *(Create these folders if they don't exist)*
+2. Copy your deck `.txt` files to your Android device's public Downloads folder at:
+   `/Download/DCGO/Decks/` *(Create these folders if they don't exist)*
 3. Open the DCGO app on your phone, go to **Your Decks**, and click the **Import Decks** button! 
    *(Note: The game will request All Files Access on modern Android to read files outside its sandbox).*
 
