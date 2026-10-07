@@ -261,3 +261,122 @@ if (Test-Path -LiteralPath $ccpPath) {
     }
 }
 
+
+Write-Host "[12/12] Injecting 'Download All Cards' Button into OptionMenu..." -ForegroundColor Yellow
+$optionPanelPath = Join-Path $ProjectPath "Assets/Scripts/Script/OptionPanel.cs"
+if (Test-Path -LiteralPath $optionPanelPath) {
+    $opContent = [System.IO.File]::ReadAllText($optionPanelPath)
+    if ($opContent -notmatch "DownloadAllCardsCoroutine") {
+        $opInject = "
+    private bool _hasInjectedDownloadBtn = false;
+    private UnityEngine.UI.Button _btnDownloadAll;
+    private TMPro.TextMeshProUGUI _btnDownloadAllText;
+    private bool _isDownloadingCards = false;
+
+    private void Update()
+    {
+        if (!_hasInjectedDownloadBtn && gameObject.activeInHierarchy)
+        {
+            _hasInjectedDownloadBtn = true;
+            InjectDownloadButton();
+        }
+    }
+
+    private void InjectDownloadButton()
+    {
+        UnityEngine.UI.Button templateBtn = null;
+        int maxSiblings = 0;
+        
+        foreach (var b in GetComponentsInChildren<UnityEngine.UI.Button>(true))
+        {
+            if (b.transform.parent != null)
+            {
+                int siblings = b.transform.parent.GetComponentsInChildren<UnityEngine.UI.Button>(true).Length;
+                if (siblings > maxSiblings)
+                {
+                    maxSiblings = siblings;
+                    templateBtn = b;
+                }
+            }
+        }
+
+        if (templateBtn != null && maxSiblings >= 3)
+        {
+            GameObject newBtnObj = Instantiate(templateBtn.gameObject, templateBtn.transform.parent);
+            newBtnObj.transform.SetAsLastSibling();
+            
+            var localizers = newBtnObj.GetComponentsInChildren<MonoBehaviour>(true);
+            foreach (var loc in localizers) 
+            {
+                if (loc.GetType().Name.Contains(\\"Localize\\")) Destroy(loc);
+            }
+
+            _btnDownloadAll = newBtnObj.GetComponent<UnityEngine.UI.Button>();
+            _btnDownloadAll.onClick.RemoveAllListeners();
+            _btnDownloadAll.onClick.AddListener(StartDownloadingAllCards);
+            
+            _btnDownloadAllText = newBtnObj.GetComponentInChildren<TMPro.TextMeshProUGUI>(true);
+            if (_btnDownloadAllText != null)
+            {
+                _btnDownloadAllText.text = "Download All Cards";
+            }
+        }
+    }
+
+    private void StartDownloadingAllCards()
+    {
+        if (_isDownloadingCards) return;
+        if (ContinuousController.instance != null)
+            ContinuousController.instance.StartCoroutine(DownloadAllCardsCoroutine());
+    }
+
+    private System.Collections.IEnumerator DownloadAllCardsCoroutine()
+    {
+        _isDownloadingCards = true;
+        if (Opening.instance != null) Opening.instance.PlayDecisionSE();
+        else if (GManager.instance != null) GManager.instance.PlayDecisionSE();
+
+        var cardList = ContinuousController.instance.CardList;
+        var missingCards = new System.Collections.Generic.List<CEntity_Base>();
+
+        foreach (var c in cardList)
+        {
+            if (!StreamingAssetsUtility.IsCardExists(c))
+            {
+                missingCards.Add(c);
+            }
+        }
+
+        if (missingCards.Count == 0)
+        {
+            if (_btnDownloadAllText != null) _btnDownloadAllText.text = "All Cards Downloaded!";
+            yield return new WaitForSeconds(2f);
+            if (_btnDownloadAllText != null) _btnDownloadAllText.text = "Download All Cards";
+            _isDownloadingCards = false;
+            yield break;
+        }
+
+        int total = missingCards.Count;
+        int current = 0;
+
+        foreach (var card in missingCards)
+        {
+            current++;
+            if (_btnDownloadAllText != null) _btnDownloadAllText.text = ""Downloading... "" + current + ""/"" + total;
+            
+            var task = StreamingAssetsUtility.GetSprite(card.CardSpriteName, isCard: true, isLauncher: false);
+            yield return new WaitUntil(() => task.IsCompleted);
+        }
+
+        if (_btnDownloadAllText != null) _btnDownloadAllText.text = "Download Complete!";
+        yield return new WaitForSeconds(2f);
+        if (_btnDownloadAllText != null) _btnDownloadAllText.text = "Download All Cards";
+        _isDownloadingCards = false;
+    }
+"
+        $lastBraceIndex = $opContent.LastIndexOf("}")
+        $opContent = $opContent.Insert($lastBraceIndex, $opInject)
+        [System.IO.File]::WriteAllText($optionPanelPath, $opContent)
+        Write-Host "  -> Injected Download All Cards Button in OptionPanel.cs" -ForegroundColor Green
+    }
+}
